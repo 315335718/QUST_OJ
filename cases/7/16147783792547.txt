@@ -1,9 +1,0 @@
-create table employee(
-    id varchar(10) PRIMARY KEY,
-    name varchar(10), 
-    age int
-);
-insert into employee(id, name, age) values('1', 'liming', '17');
-insert into employee(id, name, age) values('2', 'xiaozhang', '16');
-insert into employee(id, name, age) values('3', 'wangwu', '17');
-insert into employee(id, name, age) values('4', 'houliu', '18');
