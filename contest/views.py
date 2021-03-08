@@ -183,10 +183,9 @@ class StandingsView(View):
                         count += 1
                         if submission.status_percent > 99.9:
                             flag = 1
-                        now = timezone.now()
                         time_score = 100
                         if contest.is_time_score:
-                            time_score = 100 * ((contest.end_time - now) / contest.length)
+                            time_score = 100 * ((contest.end_time - submission.create_time) / contest.length)
                         now_score = submission.status_percent * time_score / 100
                         if now_score > max_score:
                             max_score = now_score
