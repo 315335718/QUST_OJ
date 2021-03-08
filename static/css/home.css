@@ -1,0 +1,88 @@
+html{
+	margin: 0;
+}
+body{
+	margin: 0px;
+}
+
+.header{
+	/*border: 2px solid red;*/
+	width: 100%;
+	height: 100px;
+	position: absolute;
+}
+
+.header .login_and_register{
+	/*border: 2px solid blue;*/
+	width: 23%;
+	height: 50px;
+	margin-top: 33px;
+	margin-left: 77%;
+    text-align: center;
+    font-size: 9px;
+    position: absolute;
+}
+
+.header .login_and_register a{
+	text-decoration: none;
+	background: #8080802e;
+    text-shadow: none!important;
+	margin-left: 10px;
+	margin-right: 10px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-style: solid;
+  	border-width: 2px ;
+  	border-color: white;
+    color: white;
+    font-size: 15px;
+    border-radius: 5px;
+}
+
+.header .login_and_register a:hover{
+	text-decoration: none;
+	background: white;
+    text-shadow: none!important;
+	margin: 10px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-style: solid;
+  	border-width: 2px ;
+  	border-color: white;
+    color: black;
+    font-size: 15px;
+    border-radius: 5px;
+	transition: all .3s ease;
+}
+
+#main{
+	width: 100%;
+	height: 700px;
+	background-image: url(/static/img/home.jpg) ;
+	background-size: 100% 100%;
+}
+#oj_name{
+	left: 15%;
+	width: 70%;
+    text-align: center;
+    font-size: 35px;
+    font-weight:400;
+    position: relative;
+    top: 150px;
+}
+#en{
+	margin-top: 0px;
+	color: white;
+	font-size: 60px;
+	margin-bottom: 0;
+}
+#zh{
+	font-size: 30px;
+	font-weight:normal;
+	color: white;
+	margin-top: 10px;
+}

@@ -1,0 +1,69 @@
+{% extends 'base.jinja2' %}
+
+{% block title %}
+    编辑测试题目
+{% endblock %}
+
+<!DOCTYPE html>
+
+{% block content %}
+    <div class="contest_problem_search">
+        <div class="contest_problem_title"><h1>编辑题目</h1></div>
+        <form action="{{ url('polygon:contest_problem', args=(contest_id, )) }}" method="get">{% csrf_token %}
+            <div class="contest_problem_search_button">
+                <button name = "submit"> 搜索 </button>
+            </div>
+            <div class="contest_problem_search_input">
+                <input type="text" name="key_word">
+            </div>
+        </form>
+    </div>
+    {% if count > 0 %}
+        <form action="{{ url('polygon:contest_add_problem', args=(contest_id, )) }}" method="post">{% csrf_token %}
+            <input type="hidden" value="{{ count }}" name="count">
+            <table class="polygon_contest_problem_list">
+                <tr>
+                    <th class="number">#</th>
+                    <th>名称</th>
+                    <th>题目类型</th>
+                    <th>难度</th>
+                </tr>
+                {% for cur in results %}
+                    <input type="hidden" value="{{cur.value.id}}" name="{{ loop.index }}">
+                    <tr class="polygon_contest_problem">
+                        <td class="number">{{ cur.value.id }}</td>
+                        <td class="td_title">{{cur.value.title[:20]}}{% if cur.value.title | length > 20 %}...{% endif %}</td>
+                        <td>{{ cur.value.problem_type }}</td>
+                        <td>{{ cur.value.level }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+            <button name = "submit" class="contest_add_problem_button"> 添加 </button>
+        </form>
+    {% endif %}
+
+    </div>
+        <table class="polygon_contest_problem_list">
+            <tr>
+				<th class="number">#</th>
+				<th>名称</th>
+				<th>用户通过率</th>
+				<th>提交通过率</th>
+				<th>操作</th>
+			</tr>
+            {% for ele in data  %}
+                <tr class="polygon_contest_problem">
+                    <td class="number">{{ ele.id }}</td>
+                    <td class="td_title">{{ele.title[:20]}}{% if ele.title | length > 20 %}...{% endif %}</td>
+                    <td>{{ ele.accept }} {{ ele.user_ratio }}</td>
+                    <td>{{ ele.solve }} {{ ele.ratio }}</td>
+                    <td>
+                        <a class="text_op" href="{{ url('polygon:update_problem', args=(ele.id,)) }}">编辑</a> |
+                        <a class="text_op" href="{{ url('polygon:contest_remove_problem', kwargs={'pk':contest_id, 'p_pk':ele.id, }) }}">移除</a>
+                    </td>
+                </tr>
+			{% endfor %}
+	    </table>
+    </div>
+
+{% endblock %}

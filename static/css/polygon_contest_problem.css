@@ -1,0 +1,150 @@
+.contest_problem_search {
+    width: 90%;
+	margin-top: 1%;
+    margin-left: 5%;
+	margin-bottom: 0;
+    /*border: 2px solid red;*/
+    height: 80px;
+}
+
+.contest_problem_search .contest_problem_title {
+	width: 300px;
+	height: 80px;
+	padding-left: 40px;
+	/*border: 2px solid red;*/
+	display:inline-block;
+    float: left;
+}
+
+.contest_problem_search .contest_problem_search_input {
+	width: 500px;
+	height: 80px;
+	margin-right: 0%;
+	/*border: 2px solid blue;*/
+	display:inline-block;
+    float: right;
+}
+
+.contest_problem_search input{
+    width: 200px;
+    margin-top: 30px;
+    margin-left: 270px;
+    padding-left: 12px;
+    padding-top: 3px;
+    font-size: 16px;
+    border: 2px solid lightslategrey;
+	border-radius: 5px;
+    height: 30px;
+}
+.contest_problem_search .contest_problem_search_button {
+	width: 100px;
+	height: 80px;
+	/*border: 2px solid blue;*/
+	display: inline-block;
+    float: right;
+}
+
+.contest_problem_search button {
+	margin-top: 32px;
+	padding-left: 20px;
+	padding-right: 20px;
+	padding-top: 6px;
+	padding-bottom: 6px;
+	border-radius: 5px;
+	background-color: #617df8;
+	border-color: #617df8;
+	color: white;
+	font-size: 13px;
+}
+
+.contest_add_problem_button {
+	margin-top: 10px;
+	margin-bottom: 30px;
+	margin-left: 87%;
+	padding-left: 20px;
+	padding-right: 20px;
+	padding-top: 6px;
+	padding-bottom: 6px;
+	border-radius: 5px;
+	background-color: #2DB84B;
+	border-color: #2DB84B;
+	color: white;
+}
+
+.polygon_contest_problem_list {
+	border-radius: 5px;
+    border-spacing: 0;
+	border: 1px solid #888888;
+	width: 90%;
+	margin-left: 5%;
+	margin-top: 1%;
+	outline: none;
+    border-color:rgba(32,32,32,.1);
+    font-family: 'Open Sans','Helvetica Neue',"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Hiragino Kaku Gothic Pro",Meiryo,"Noto Sans CJK SC","WenQuanYi Micro Hei",Arial,Helvetica,sans-serif;
+}
+
+.polygon_contest_problem_list th {
+	border-right: 1px solid #888;
+	border-bottom: 1px solid #888;
+	font-size: 15px;
+	padding: 5px 15px;
+	font-weight: bold;
+	height: 38px;
+	background-color: #F9FAFB;
+	border-color:rgba(32,32,32,.1);
+}
+
+.polygon_contest_problem_list th:last-child {
+	border-right: 0px;
+}
+
+.polygon_contest_problem_list td{
+	border-right: 1px solid #888;
+	border-bottom: 1px solid #888;
+	font-size: 15px;
+	padding: 5px 15px;
+	height: 1.8em;
+	font-weight: normal;
+	text-align: center;
+	vertical-align: middle;
+	border-color: rgba(34,36,38,.1);
+}
+
+.polygon_contest_problem_list td:last-child {
+	border-right: 0px;
+}
+
+.polygon_contest_problem_list .number{
+	width: 6%;
+}
+.polygon_contest_problem_list .th_title{
+	cursor:pointer;
+	width: 30%;
+    text-align:left;
+}
+.polygon_contest_problem_list .td_title{
+	cursor:pointer;
+	width: 30%;
+    text-align:left;
+	color: #4183c4;
+}
+
+.polygon_contest_problem_list .polygon_contest_problem {
+	padding:5px 15px;
+	height: 40px;
+	padding-top: 10px;
+}
+
+.polygon_contest_problem_list .polygon_contest_problem:hover {
+	background-color: #37393708;
+}
+
+.polygon_contest_problem_list label {
+    display: inline-block;
+    width: 5em;
+}
+
+.text_op {
+	text-decoration: none;
+	color: #4183c4;
+}

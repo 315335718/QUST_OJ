@@ -1,0 +1,62 @@
+{% extends 'base.jinja2' %}
+
+{% block css %}
+    <style>
+        .problem_submission_list .td_title{
+            cursor:pointer;
+            width:80%;
+            text-align:left;
+            padding-left: 20px;
+            color: #4183c4;
+        }
+        .problem_submission_list .problem {
+            padding:5px 15px;
+            height: 40px;
+        }
+        .problem_submission_list .problem:hover {
+            background-color: #37393708;
+        }
+    </style>
+{% endblock %}
+
+{% block title %}
+    测试总览
+{% endblock %}
+
+{% block content %}
+    <div style="text-align: center; width: 70%; margin-left: 5%; height:40px;">
+        <h1>{{ contest.title[:30] }}{% if contest.title | length > 30 %}...{% endif %}</h1>
+        <h4>
+            注意：
+            (1) 最大尝试次数: <span style="color: red">{{ contest.max_try }}</span>；&nbsp
+            (2) 使用每题<span style="color: red">{% if contest.is_best_counts %}最高成绩{% else %}平均成绩{% endif %}</span>作为最终成绩；&nbsp
+            (3) 当前每道题的分数为:&nbsp<span style="color: green">{% if contest.is_time_score %}{{ problem_score }}{% else %}100{% endif %}</span>
+        </h4>
+    </div>
+    <div class="problem_submissions_field">
+        <table class="problem_submission_list">
+            <tr>
+                <th style="width:8%; height: 50px">#</th>
+                <th style="width:80%">题目名称</th>
+                <th style="width:12%">通过人数</th>
+            </tr>
+            {% for ele in result %}
+                <tr class="problem">
+                    <td>{{ ele.id }}</td>
+                    <td class="td_title" onclick="location.href='{{ url('contest:contest_problem', args=(contest.id, ele.id, )) }}';">{{ ele.title }}</td>
+                    <td>{{ ele.total }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div class="problem_other_info_field">
+        <div class="problem_navbar">
+            <h4>&nbsp&nbsp→&nbsp&nbsp导航</h4>
+            <p><a href="{{ url('contest:dashboard', args=(contest.id, )) }}">总览</a></p>
+            <p><a href="{{ url('contest:my_submissions', args=(contest.id, )) }}">我的提交</a></p>
+            <p><a href="{{ url('contest:submissions', args=(contest.id, )) }}">所有提交</a></p>
+            <p><a href="{{ url('contest:standings', args=(contest.id, )) }}">榜单</a></p>
+        </div>
+    </div>
+    <div style="width: 100%; height: 0px; margin: 0; display:inline-block;"></div>
+{% endblock %}

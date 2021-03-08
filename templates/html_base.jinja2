@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="height=800">
+	<link rel="icon" type="image/png" sizes="1000x1000" href="{{ static('img/icon.png') }}"/>
+    <link rel="stylesheet" href="{{ static('css/home.css') }}">
+    <link rel="stylesheet" href="{{ static('css/form.css') }}">
+    <link rel="stylesheet" href="{{ static('css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ static('css/polygon_problem_list.css') }}">
+    <link rel="stylesheet" href="{{ static('css/update_cases.css') }}">
+    <link rel="stylesheet" href="{{ static('css/problem.css') }}">
+    <link rel="stylesheet" href="{{ static('css/problem_submissions.css') }}">
+    <link rel="stylesheet" href="{{ static('css/polygon_contest_list.css') }}">
+    <link rel="stylesheet" href="{{ static('css/polygon_contest_problem.css') }}">
+
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    {% block css %}{% endblock %}
+
+    <title>
+        {% block title %}{% endblock %}
+        {% block base_title %}QUST Online Judge For SQL{% endblock %}
+    </title>
+</head>
+
+<body>
+    {% block _content %}{% endblock %}
+</body>
+
+<script src="{{ static('js/jquery-3.1.1.min.js') }}"></script>
+
+{% block script %}{% endblock %}
+
+</html>

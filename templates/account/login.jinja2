@@ -1,0 +1,36 @@
+{% extends 'base.jinja2' %}
+
+{% block title %}
+    登录
+{% endblock %}
+
+{% block content %}
+<h1 class="form_header">登录</h1>
+<form action = "{{ url('login')}}" method = 'post'>
+    {% csrf_token %}
+    {% if error_flag %}
+        <div class="error_message">
+            <div class="error_header">存在问题！</div>
+            <ul class="error_list">
+                {% for error in form.error_messages.values() %}
+                    <li>{{ error | escape }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+    {% for field in form %}
+        <div class="field">
+            {% if field.field.widget.__class__.__name__ == 'CheckboxInput' %}
+                <div class="check_box_field">{{ field }}<label class="normal_label">{{ field.label }}</label></div>
+            {% elif error_flag %}
+                <label class="error_label">{{ field.label }}:</label>
+                <div class="error_field">{{ field }}</div>
+            {% else %}
+                <label class="normal_label">{{ field.label }}:</label>
+                <div class="normal_field">{{ field }}</div>
+            {% endif %}
+        </div>
+    {% endfor %}
+    <button name = "submit" class="submit_button"> 确定 </button>
+</form>
+{% endblock %}

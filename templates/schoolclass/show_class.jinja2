@@ -1,0 +1,154 @@
+{% extends 'base.jinja2' %}
+
+{% block css %}
+    <link rel="stylesheet" href="{{ static('css/show_class.css') }}">
+{% endblock %}
+
+{% block title %}
+    班级管理
+{% endblock %}
+
+{% block content %}
+    <div style="width: 100%; height: 45px; position: relative"></div>
+    <div id="zhuti">
+        <div id="class_management">
+			<p id="class_management_p">班级管理</p>
+			{% for sc in class_list %}
+			    <p class="class_management_name"><a href="{{ url('schoolclass:show_class', args=(sc.id, )) }}">{{ sc.name }}</a></p>
+			{% endfor %}
+			<a id="class_management_button" href="{{ url('schoolclass:add_class') }}">
+			<i class="fa fa-plus" aria-hidden="true" style="color: #69d862;"></i>新建班级</a>
+        </div>
+        <div id="class_management_right">
+            <div id="class_edit">
+                <div id="class_description_div">
+                    <p id="class_description">{{ cur_class.name }}&emsp;&emsp;{{ cur_class.year }}&emsp;&emsp;{{ cur_class.semester }}</p>
+				    <a id="button_1" href="{{ url('schoolclass:update_class', args=(cur_class.id, )) }}" >信息编辑</a>
+				    <a id="button_2" href="{{ url('schoolclass:delete_class', args=(cur_class.id, )) }}">删除班级</a>
+                </div>
+				<div id="second">
+					<form id="search_form" action="" method="post">
+{#						<!--{{csrf}}-->#}
+                        <input type="text" placeholder="搜索..." autocomplete="off" class="search" >
+                        <button id="search_button"><i class="fa fa-search" aria-hidden="true" style=""></i></button>
+					</form>
+					<a id="button_1" href="{{ url('schoolclass:add_student', args=(cur_class.id, )) }}">添加学生</a>
+					<a id="button_2" href="">导入学生</a>
+					<a id="button_3" href="{{ url('schoolclass:delete_all_student', args=(cur_class.id, )) }}">删除全部</a>
+				</div>
+            </div>
+            <table>
+                <tr id="tr_th">
+                    <th class="number">#</th>
+                    <th class="name">学号</th>
+                    <th>姓名</th>
+                    <th class="operation">操作</th>
+                </tr>
+			    {% for st in student_list  %}
+                    <tr class="problem_Directory_entry" >
+                        <td class="number" >{{ st.id }}</td>
+                        <td class="name_2" >{{ st.username }}</td>
+                        <td >{{ st.name }}</td>
+{#        <!--				<td>{{key.Pass_rate}}</td>-->#}
+                        <td class="operation_2">
+{#                            <button class="reset_button" href="{{ url('schoolclass:reset_password', kwargs={'c_pk':cur_class.id, 's_pk': st.id}) }}">重置密码</button>#}
+{#                            <button class="delete_button" href="{{ url('schoolclass:delete_student', kwargs={'c_pk':cur_class.id, 's_pk': st.id}) }}">删除学生</button>#}
+                            &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                            <a href="{{ url('schoolclass:reset_password', kwargs={'c_pk':cur_class.id, 's_pk': st.id}) }}">重置密码</a>
+                            &nbsp
+                            <a href="{{ url('schoolclass:delete_student', kwargs={'c_pk':cur_class.id, 's_pk': st.id}) }}">删除学生</a>
+                        </td>
+                    </tr>
+			    {% endfor %}
+	        </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script%}
+{#	<script>#}
+{#		var i=1,j=1#}
+{#	$(".class_management_name").each(function(){#}
+{#		if($(this).text()=="{{ cur_class.name }}" )	{#}
+{#			$(this).css("background-color","rgb(176 202 255 / 30%)");#}
+{#			return false;#}
+{#		}#}
+{#		i++;#}
+{#	})#}
+{#		var ii=1;#}
+{#		$("tr #number").each(function(){#}
+{##}
+{#			$(this).text(ii.toString());#}
+{#			ii++;#}
+{#		})#}
+{##}
+{#		ii=1;#}
+{#		$(".delete_button").each(function(){#}
+{##}
+{#			$(this).attr("id",ii.toString()+"aa")#}
+{#			ii++;#}
+{#		})#}
+{#		$(".delete_button").click(function(){#}
+{#			var s=$(this).attr("id");#}
+{#		layer.confirm('您确认从本班中移除此同学吗？', {#}
+{#  		closeBtn: 0,#}
+{#		shadeClose: true,#}
+{#  		btn: ['确认','取消'] //按钮#}
+{#		},#}
+{#		function(){#}
+{#  		layer.msg('已成功删除', {icon: 1});#}
+{#		location.href=$("#"+s).attr("value");#}
+{#			}#}
+{#			);#}
+{#		})#}
+{#			ii=1;#}
+{#		$(".reset_button").each(function(){#}
+{##}
+{#			$(this).attr("id",ii.toString())#}
+{#			ii++;#}
+{#		})#}
+{#		$(".reset_button").click(function(){#}
+{#			var s=$(this).attr("id");#}
+{#		layer.confirm('您确认重置此同学密码吗？', {#}
+{#  		closeBtn: 0,#}
+{#		shadeClose: true,#}
+{#  		btn: ['确认','取消'] //按钮#}
+{#		},#}
+{#		function(){#}
+{#			time: 20000,#}
+{#  		layer.msg('已成功重置', {icon: 1});#}
+{#		location.href=$("#"+s).attr("value");#}
+{#			}#}
+{#			);#}
+{#		})#}
+{#		$("span #button_2").click(function(){#}
+{#            alert("fsdfsdf")#}
+{#		layer.confirm('您确认删除此班级吗？', {#}
+{#  		closeBtn: 0,#}
+{#		shadeClose: true,#}
+{#  		btn: ['确认','取消'] //按钮#}
+{#		},#}
+{#		function(){#}
+{#			time: 20000,#}
+{#  		layer.msg('已成功删除', {icon: 1});#}
+{#		location.href="{{ url('schoolclass:delete_class', args=(cur_class.id, )) }}";#}
+{#			}#}
+{#			);#}
+{#		})#}
+{#		$("#second #button_3").click(function(){#}
+{#		layer.confirm('您确认移除全部学生吗？', {#}
+{#  		closeBtn: 0,#}
+{#		shadeClose: true,#}
+{#  		btn: ['确认','取消'] //按钮#}
+{#		},#}
+{#		function(){#}
+{#			time: 20000,#}
+{#  		layer.msg('已成功删除', {icon: 1});#}
+{#		location.href="{{ url('schoolclass:delete_all_student', args=(cur_class.id, )) }}";#}
+{#			}#}
+{#			);#}
+{#		})#}
+{##}
+{#	</script>#}
+{% endblock %}
+

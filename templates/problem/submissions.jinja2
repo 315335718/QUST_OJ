@@ -1,0 +1,74 @@
+{% extends 'base.jinja2' %}
+
+{% block css %}
+    <style>
+        .problem_submissions_field {
+            width: 90%;
+            margin-left: 5%;
+            margin-top: 4.3%;
+            margin-bottom: 0;
+            margin-right: 0;
+            height: auto;
+            /*border: 2px solid red;*/
+            text-align: center;
+            display:inline-block;
+            float: left;
+        }
+    </style>
+{% endblock %}
+
+{% block title %}
+    评测状态
+{% endblock %}
+
+{% block content %}
+    <div style="text-align: center; width: 100%; height:10px; margin: 0;"><h1>评测状态</h1></div>
+    <div class="problem_submissions_field">
+        <table class="problem_submission_list">
+            <tr>
+                <th>#</th>
+                <th style="width: 20%;">提交时间</th>
+                <th style="width: 20%;">结束时间</th>
+                <th style="width: 15%">提交者</th>
+                <th style="width: 10%">题目ID</th>
+                <th class="submission_status">评测状态</th>
+                <th style="width: 10%">评测结果</th>
+            </tr>
+            {% for submission in submission_list %}
+                <tr>
+                    <td>{{ submission.id }}</td>
+                    <td class="create_and_end_time">{{ submission.create_time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td class="create_and_end_time">
+                        {% if submission.status >= 0 and submission.judge_end_time %}
+                            {{ submission.judge_end_time.strftime('%Y-%m-%d-%H:%M:%S') }}
+                        {% elif submission.status >= 0 %}
+                            无
+                        {% endif %}</td>
+                    <td class="submit_username">{{ submission.author.username }}</td>
+                    <td class="submited_problem"><a href="{{ url('problem:detail', args=(submission.problem.id, )) }}">{{ submission.problem.id }}</a></td>
+                    {% if submission.status == -3 %}
+                        <td class="submission_status" style="color: #A4CACA; font-weight: bold">提交成功</td>
+                    {% elif submission.status == -2 %}
+                        <td class="submission_status" style="color: #A4CACA; font-weight: bold">队列中</td>
+                    {% elif submission.status == -1 %}
+                        <td class="submission_status" style="color: #A4CACA; font-weight: bold">{{ submission.running_process }}</td>
+                    {% elif submission.status == 0 %}
+                        <td class="submission_status" style="color: #009A08; font-weight: bold">评测完成</td>
+                    {% elif submission.status == 2 %}
+                        <td class="submission_status" style="color: #FF8C00; font-weight: bold">编译错误</td>
+                    {% elif submission.status == 3 %}
+                        <td class="submission_status" style="color: #FF0A32; font-weight: bold">系统错误</td>
+                    {% endif %}
+                    {% if submission.status_percent == 100 %}
+                        <td style="color: #009A08; font-weight: bolder">{{ submission.status_percent }}</td>
+                    {% elif submission.status_percent > 0 %}
+                        <td style="color: #FF8C00; font-weight: bolder">{{ submission.status_percent }}</td>
+                    {% else %}
+                        <td style="color: #FF0A32; font-weight: bolder">{{ submission.status_percent }}</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div style="width: 100%; height: 0px; margin: 0; display:inline-block;"></div>
+{% endblock %}

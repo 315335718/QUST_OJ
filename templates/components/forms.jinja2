@@ -1,0 +1,45 @@
+{% set error_exists = [] %}
+{% for field in form %}
+    {% if field.errors %}{% do error_exists.append(1) %}{% endif %}
+{% endfor %}
+{% if form.non_field_errors() %}
+    {% do error_exists.append(1) %}
+{% endif %}
+
+<form action="{{ action_path or request.get_full_path() }}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path() }}">
+    {% if error_exists %}
+        <div class="error_message">
+            <div class="error_header">存在问题！</div>
+            <ul class="error_list">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li>{{ field.label }}: {{ error | escape }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {% for field in form %}
+        <div class="field">
+            {% if field.field.widget.__class__.__name__ == 'CheckboxInput' %}
+                <div class="check_box_field">{{ field }}<label class="normal_label">{{ field.label }}</label></div>
+            {% elif field.field.widget.__class__.__name__ == 'Select' %}
+                <label class="normal_label">{{ field.label }}:</label>
+                <div class="select_field">{{ field }}</div>
+            {% elif field.field.widget.__class__.__name__ == 'Textarea' %}
+                <label class="{% if field.errors %}error{% else %}normal{% endif %}_label">{{ field.label }}:</label>
+                <div class="{% if field.errors %}error{% else %}normal{% endif %}_textarea_field">{{ field }}</div>
+            {% elif field.field.widget.__class__.__name__ == 'DateTimeInput' %}
+                <label class="{% if field.errors %}error{% else %}normal{% endif %}_label">{{ field.label }}:</label>
+                <div class="{% if field.errors %}error{% else %}normal{% endif %}_field">{{ field }}</div>
+            {% else %}
+                <label class="{% if field.errors %}error{% else %}normal{% endif %}_label">{{ field.label }}:</label>
+                <div class="{% if field.errors %}error{% else %}normal{% endif %}_field">{{ field }}</div>
+            {% endif %}
+        </div>
+    {% endfor %}
+    <button name = "submit" class="submit_button"> 确定 </button>
+</form>

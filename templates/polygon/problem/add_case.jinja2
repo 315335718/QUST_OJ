@@ -1,0 +1,19 @@
+{% extends 'base.jinja2' %}
+
+{% block css %}
+    <style>
+        .normal_textarea_field textarea{
+        height: 300px;
+    }
+    </style>
+{% endblock %}
+
+{% block title %}
+    添加测试点
+{% endblock %}
+
+{% block content %}
+    <h1 class="form_header">添加测试点</h1>
+    {% include 'components/forms.jinja2' %}
+{% endblock %}
+

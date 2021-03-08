@@ -1,0 +1,36 @@
+.manage_menu_container {
+	margin-top: 6%;
+	margin-left: 6%;
+	margin-right: 6%;
+	border: 2px solid red;
+	height: 40px;
+}
+
+.manage_menu_container .menu_button {
+	width: 36%;
+	height: 40px;
+	border: 2px solid blue;
+	align-items: center;
+	display: flex;
+	justify-content: space-around;
+}
+
+.manage_menu_container .menu_button a{
+	text-decoration: none;
+	background-color: #617df8;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-style: solid;
+  	border-width: 2px ;
+    color: white;
+    font-size: 15px;
+    border-radius: 5px;
+}
+
+.manage_menu_container .menu_button a:hover{
+	background-color: #4a5eba;
+    border-radius: 5px;
+	transition: all .3s ease;
+}

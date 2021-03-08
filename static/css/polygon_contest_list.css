@@ -1,0 +1,122 @@
+.contest_menu_container {
+	margin-top: 2%;
+	margin-left: 5%;
+	margin-right: 5%;
+	/*border: 2px solid red;*/
+	height: 40px;
+}
+
+.contest_menu_container .menu_title {
+	margin-top: -1.9%;
+	margin-left: 3%;
+	padding-top: 0;
+	width: 10%;
+	height: 40px;
+	position: absolute;
+}
+
+.contest_menu_container .menu_button {
+	margin-left: 90%;
+	width: 10%;
+	height: 40px;
+	/*border: 2px solid blue;*/
+	align-items: center;
+	justify-content: space-around;
+	display: flex;
+}
+
+.contest_menu_container .menu_button a{
+	text-decoration: none;
+	background-color: #617df8;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-style: solid;
+  	border-width: 2px ;
+    color: white;
+    font-size: 15px;
+    border-radius: 5px;
+}
+
+.contest_menu_container .menu_button a:hover{
+	background-color: #4a5eba;
+	transition: all .3s ease;
+}
+
+.polygon_contest_list {
+	border-radius: 5px;
+    border-spacing: 0;
+	border: 1px solid #888888;
+	width: 90%;
+	margin-left: 5%;
+	margin-top: 1%;
+	outline: none;
+    border-color:rgba(32,32,32,.1);
+    font-family: 'Open Sans','Helvetica Neue',"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Hiragino Kaku Gothic Pro",Meiryo,"Noto Sans CJK SC","WenQuanYi Micro Hei",Arial,Helvetica,sans-serif;
+}
+
+.polygon_contest_list th {
+	border-right: 1px solid #888;
+	border-bottom: 1px solid #888;
+	font-size: 15px;
+	padding: 5px 15px;
+	font-weight: bold;
+	height: 38px;
+	background-color: #F9FAFB;
+	border-color:rgba(32,32,32,.1);
+}
+
+.polygon_contest_list th:last-child {
+	border-right: 0px;
+}
+
+.polygon_contest_list td{
+	border-right: 1px solid #888;
+	border-bottom: 1px solid #888;
+	font-size: 15px;
+	padding: 5px 15px;
+	height: 1.8em;
+	font-weight: normal;
+	text-align: center;
+	vertical-align: middle;
+	border-color: rgba(34,36,38,.1);
+}
+
+.polygon_contest_list td:last-child {
+	border-right: 0px;
+}
+
+.polygon_contest_list .number{
+	width: 6%;
+}
+.polygon_contest_list .th_title{
+	cursor:pointer;
+	width: 30%;
+    text-align:left;
+}
+.polygon_contest_list .td_title{
+	cursor:pointer;
+	width: 30%;
+    text-align:left;
+	color: #4183c4;
+}
+
+.polygon_contest_list .operation{
+	width: 10%;
+}
+
+.polygon_problem_list .contest {
+	padding:5px 15px;
+	height: 40px;
+	padding-top: 10px;
+}
+
+.polygon_contest_list .contest:hover {
+	background-color: #37393708;
+}
+
+.polygon_contest_list label {
+    display: inline-block;
+    width: 5em;
+}

@@ -1,0 +1,29 @@
+{% extends 'base.jinja2' %}
+
+{% block title %}
+    题目
+{% endblock %}
+
+{% block content %}
+    <div class="problem_info_field">
+        <h2 class="problem_title">#{{problem.id}}. {{problem.title}}</h2>
+        <p class="problem_label">题目类型：<strong>{{problem.problem_type}}</strong></p>
+        <p class="problem_label">题目难度：<strong>{{problem.level}}</strong></p>
+        <p class="problem_description">{{problem.description}}</p>
+    </div>
+    <div class="problem_other_info_field">
+        <div class="problem_navbar">
+            <h4>&nbsp&nbsp→&nbsp&nbsp导航</h4>
+            <p><a href="{{ url('problem:detail', args=(problem.id, )) }}">题目</a></p>
+            <p><a href="{{ url('problem:submissions', args=(problem.id, )) }}">我的提交</a></p>
+        </div>
+    </div>
+    <div class="problem_submit_field">
+        <p class="problem_submit_label"><strong>源代码：</strong></p>
+        <form action="{{ url('problem:submit', args=(problem.id, 0, )) }}" method="post">{% csrf_token %}
+            <textarea class="code_textarea" name="code">select * from employee where age < 18</textarea>
+            <button name="submit" class="problem_submit_button"> 提交 </button>
+        </form>
+    </div>
+    <div class="problem_bottom_field"></div>
+{% endblock %}

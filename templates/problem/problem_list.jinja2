@@ -1,0 +1,61 @@
+{% extends 'base.jinja2' %}
+
+{% block css %}
+    <style>
+        .polygon_problem_list .th_title {
+            cursor:pointer;
+            width: 54%;
+            text-align:left;
+        }
+        .polygon_problem_list .td_title {
+            cursor:pointer;
+            width: 54%;
+            text-align:left;
+            color: #4183c4;
+        }
+    </style>
+{% endblock %}
+
+{% block title %}
+    题目集
+{% endblock %}
+
+{% block content %}
+    <div class="problem_menu_container">
+        <div class="menu_title"><h1>题目集</h1></div>
+        <div class="menu_button">
+            <a href="{{ url('problem:submissions') }}">评测状态</a>
+        </div>
+    </div>
+    <table class="polygon_problem_list">
+        <tr>
+            <th style="width: 6%">#</th>
+            <th class="th_title">题目名称</th>
+            <th style="width: 10%">题型</th>
+            <th style="width: 10%">难度</th>
+            <th style="width: 10%">提交通过比</th>
+            <th style="width: 10%">提交通过率</th>
+        </tr>
+        {% for problem in problem_list  %}
+			<tr class="problem" >
+				<td class="number">{{ problem.id }}</td>
+				<td class="td_title" onclick="location.href='{{ url('problem:detail', args=(problem.id, )) }}';">{{problem.title[:36]}}{% if problem.title | length > 20 %}...{% endif %}</td>
+				<td >{{ problem.problem_type }}</td>
+				<td>{{ problem.level }}</td>
+                <td style="font-weight: bold;">{{ problem.ac_count }}&nbsp&nbsp/&nbsp&nbsp{{ problem.total_count }}</td>
+                {% if problem.total_count > 0 %}
+                    {% if problem.ac_count / problem.total_count >= 0.75 %}
+                        <td style="font-weight: bold; color: #009A08;">{{ (problem.ac_count / problem.total_count * 100) | round(1, 'floor') }}%</td>
+                    {% elif problem.ac_count / problem.total_count >= 0.25 %}
+                        <td style="font-weight: bold; color: #FF8C00;">{{ (problem.ac_count / problem.total_count * 100) | round(1, 'floor') }}%</td>
+                    {% else %}
+                        <td style="font-weight: bold; color: #FF0A32;">{{ (problem.ac_count / problem.total_count * 100) | round(1, 'floor') }}%</td>
+                    {% endif %}
+                {% else %}
+                    <td style="font-weight: bold; color: #FF0A32;">0.0%</td>
+                {% endif %}
+			</tr>
+        {% endfor %}
+	</table>
+    <div id="exam_bottom" style="height: 200px;"><p></p></div>
+{% endblock %}

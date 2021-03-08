@@ -1,0 +1,78 @@
+{% extends 'base.jinja2' %}
+
+{% block title %}
+    题目管理列表
+{% endblock %}
+
+{% block content %}
+    <div class="problem_menu_container">
+        <div class="menu_title"><h1>题目管理</h1></div>
+        <div class="menu_button">
+            <a href="{{ url('polygon:add_problem') }}">添加题目</a>
+        </div>
+    </div>
+    <table class="polygon_problem_list">
+        <tr>
+            <th class="number">#</th>
+            <th class="th_title">题目名称</th>
+            <th>题型</th>
+<!--				<th>通过率</th>-->
+            <th>难度</th>
+            <th>创建时间</th>
+            <th>修改时间</th>
+            <th class="operation">操作</th>
+        </tr>
+        {% for problem in problem_list  %}
+			<tr class="problem" >
+				<td class="number">{{ problem.id }}</td>
+				<td class="td_title" onclick="location.href='{{ url('problem:detail', args=(problem.id, )) }}';">{{problem.title[:20]}}{% if problem.title | length > 20 %}...{% endif %}</td>
+				<td >{{ problem.problem_type }}</td>
+{#<!--				<td>{{key.Pass_rate}}</td>-->#}
+				<td>{{ problem.level }}</td>
+                <td>{{ problem.create_time.strftime('%Y-%m-%d') }}</td>
+				<td>{{ problem.update_time.strftime('%Y-%m-%d') }}</td>
+				<td>
+					{% if request.user.is_superuser %}
+                        <i class="fa fa-edit" title="编辑" style="color: green;font-size: 20px;" aria-hidden="true" onclick="location.href='{{ url('polygon:update_problem', args=(problem.id,)) }}';"></i>
+                        <i class="fa fa-plus-square-o" title="添加用例" style="color: green;font-size: 20px;" onclick="location.href='{{ url('polygon:update_cases', kwargs={'pk':problem.id, 'case_id': 1}) }}';" aria-hidden="true"></i>
+                        <i class="fa fa-trash-o" title="删除" style="color: green;font-size: 20px;" aria-hidden="true" value="{{ url('polygon:delete_problem', args=(problem.id, )) }}"></i>
+					{% else %}
+					    <i style="color:red">无权限</i>
+					{% endif %}
+				</td>
+			</tr>
+        {% endfor %}
+	</table>
+    <div id="exam_bottom" style="height: 200px;"><p></p></div>
+{% endblock %}
+
+{% block script%}
+	<script>
+		var ii=1;
+		$("tr #number").each(function(){
+
+			$(this).text(ii.toString());
+			ii++;
+		})
+
+		ii=1;
+		$(".fa-trash-o").each(function(){
+
+			$(this).attr("id",ii.toString())
+			ii++;
+		})
+		$(".fa-trash-o").click(function(){
+//			alert($(this).attr("value")+$(this).attr("id"))
+			var r = confirm("您确认删除本问题吗")
+		if (r == true) {
+			location.href=$(this).attr("value");
+		} else {
+//			document.write("You pressed Cancel!")
+		}
+		})
+		  $(function() {
+    $( document ).tooltip();
+  				});
+
+	</script>
+{% endblock %}

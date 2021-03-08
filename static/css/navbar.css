@@ -1,0 +1,134 @@
+.top_menu {
+    height: 45px;
+    width: 99%;
+    border-bottom-style: ridge;
+    border-bottom-color: darkgrey;
+	border-bottom-width: 1px;
+    background-color: white;
+    z-index: 999;
+    position: fixed;
+    top: 0px;
+    display: flex;
+    align-items: center;
+}
+
+.top_menu .menu_left{
+	height: inherit;
+	width: 62%;
+	/*border: 2px solid red;*/
+	display: flex;
+	align-items: center;
+}
+
+.top_menu .menu_left .img_field {
+	/*border: 2px solid green;*/
+	margin-left: 5%;
+	display: flex;
+	position: relative;
+}
+
+.top_menu .menu_left .title_field {
+	height: inherit;
+	/*border: 2px solid orange;*/
+	margin-left: 1.6%;
+	display: flex;
+	position: relative;
+	align-items: center;
+}
+
+.top_menu .menu_left .fun_field {
+	height: inherit;
+	width: 445px;
+	/*border: 2px solid purple;*/
+	margin-left: 36px;
+	display: flex;
+	position: relative;
+	align-items: center;
+	font-size: 16px;
+	font-weight: normal;
+}
+
+.top_menu .menu_left .fun_field .fun {
+	height: inherit;
+	margin-left: 16px;
+	margin-right: 16px;
+	/*border: 2px solid yellow;*/
+	display: flex;
+	position: relative;
+	align-items: center;
+	color: #636363;
+	text-decoration:none;
+}
+
+.top_menu .menu_left .fun_field .fun:hover{
+	height: inherit;
+	font-weight: bold;
+	color: black;
+	text-decoration:none;
+	transition: all .3s ease;
+}
+
+.top_menu .menu_right {
+	height: inherit;
+	left: 62%;
+	width: 37%;
+	/*border: 2px solid blue;*/
+	display: flex;
+	align-items: center;
+}
+
+.top_menu .menu_right .user_field {
+	height: inherit;
+	width: 100px;
+	margin-left: 56%;
+	/*border: 2px solid purple;*/
+	display: flex;
+	justify-content: space-around;
+}
+
+.top_menu .menu_right .user_field a {
+	text-decoration: none;
+	/*border: 2px solid orangered;*/
+	display: flex;
+	align-items: center;
+	font-size: 15px;
+	font-weight: bold;
+	color: black;
+}
+
+.top_menu .menu_right .user_field a:hover {
+	display: flex;
+	align-items: center;
+}
+
+.top_menu .menu_right .log_field {
+	height: inherit;
+	margin-left: 0%;
+	/*border: 2px yellow;*/
+	display: flex;
+	align-items: center;
+}
+
+.top_menu .menu_right .log_field a{
+	text-decoration: none;
+	/*background: #8080802e;*/
+	background: white;
+	margin: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-style: solid;
+  	border-width: 2px ;
+  	border-color: black;
+	border-radius: 5px;
+    color: black;
+    font-size: 15px;
+}
+
+.top_menu .menu_right .log_field a:hover{
+	background: black;
+  	border-color: black;
+    color: white;
+	transition: all .3s ease;
+}

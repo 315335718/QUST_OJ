@@ -1,0 +1,184 @@
+.form_header {
+	top: 10px;
+	left: 5%;
+	position: relative;
+}
+
+.error_message {
+	left: 5%;
+	width: 90%;
+	color: #9F3A38;
+	background-color: #FFF6F6;
+	border-style: solid;
+	border-color: #EFD5D5;
+	border-width: 1px;
+	border-radius: 5px;
+	position: relative;
+}
+
+.error_header {
+	margin-top: 1.5%;
+	margin-left: 2%;
+	margin-bottom: 0%;
+    font-size: 18px;
+	font-weight: bolder;
+	position: relative;
+}
+
+.error_list {
+	/*border: 2px solid red;*/
+	font-size: 15px;
+	line-height: 25px;
+	font-weight: normal;
+}
+
+.field {
+	/*border: 2px solid blue;*/
+	top: 16px;
+	margin-top: 1%;
+	left: 5%;
+	width: 90%;
+	position: relative;
+}
+
+.field .normal_field input{
+	width: 98.5%;
+	height: 40px;
+	padding-left: 1.5%;
+	margin: 0;
+	font-size: 16px;
+	color: black;
+	background-color: white;
+	border-style: solid;
+	border-color: #DEDEDE;
+	border-width: 1px;
+	border-radius: 5px;
+	position: relative;
+}
+
+.field .error_field input{
+	width: 98.5%;
+	height: 40px;
+	padding-left: 1.5%;
+	font-size: 16px;
+	color: #9F3A38;
+	background-color: #FFF6F6;
+	border-style: solid;
+	border-color: #EFD5D5;
+	border-width: 1px;
+	border-radius: 5px;
+	position: relative;
+}
+
+.field .normal_label {
+	width: 100px;
+	/*border: 2px solid red;*/
+	font-size: 15px;
+	font-weight: bold;
+	left: 7px;
+	top: -3px;
+	position: relative;
+}
+
+.field .error_label {
+	width: 100px;
+	color: #9F3A38;
+	font-size: 15px;
+	font-weight: bold;
+	left: 7px;
+	top: -3px;
+	position: relative;
+}
+
+.submit_button {
+	top: 36px;
+	left: 5%;
+	width: 80px;
+	height: 39px;
+	font-size: 15px;
+	color: white;
+	background-color: #2DB84B;
+	border-style: solid;
+	border-color: #2DB84B;
+	border-width: 1px;
+	border-radius: 5px;
+	position: relative;
+}
+
+.submit_button:hover{
+	font-size: 15px;
+	color: white;
+	background-color: #2DA04B;
+	border-style: solid;
+	border-color: #2DA04B;
+	border-width: 1px;
+	border-radius: 5px;
+	position: relative;
+    transition: all .3s ease;
+}
+
+.check_box_field {
+	width: 100%;
+}
+
+.check_box_field input{
+	width: 17px;
+	height: 17px;
+}
+
+.select_field {
+	width: 100%;
+}
+
+.select_field select{
+	width: 200px;
+	height: 40px;
+	padding-left: 1%;
+	margin: 0;
+	font-size: 16px;
+	color: black;
+	background-color: white;
+	border-style: solid;
+	border-color: #DEDEDE;
+	border-width: 1px;
+	border-radius: 5px;
+	position: relative;
+}
+
+.textarea_field {
+	width: 100%;
+}
+
+.normal_textarea_field textarea{
+	resize: none;
+	width: 98.5%;
+	height: 168px;
+	padding-top: 1.5%;
+	padding-left: 1.5%;
+	margin: 0;
+	font-size: 16px;
+	color: black;
+	background-color: white;
+	border-style: solid;
+	border-color: #DEDEDE;
+	border-width: 1px;
+	border-radius: 5px;
+	position: relative;
+}
+
+.error_textarea_field textarea{
+	resize: none;
+	width: 98.5%;
+	height: 168px;
+	padding-top: 1.5%;
+	padding-left: 1.5%;
+	margin: 0;
+	font-size: 16px;
+	color: #9F3A38;
+	background-color: white;
+	border-style: solid;
+	border-color: #EFD5D5;
+	border-width: 1px;
+	border-radius: 5px;
+	position: relative;
+}

@@ -1,0 +1,51 @@
+{%extends 'base.jinja2' %}
+
+{% block base_title %}
+    编辑测试点
+{% endblock %}
+
+{% block content %}
+    <div id="left_menu">
+        <p id="menu_title">测试代码</p>
+        <div id="case_catalog">
+            {% for c_id in all_case %}
+                <button class="case_catalog_item" onclick="location.href='{{ url('polygon:update_cases', kwargs={'pk':problem_id, 'case_id': c_id}) }}';"></button>
+            {% endfor %}
+		</div>
+        <a id="add_button" href="{{ url('polygon:add_case', args=(problem_id, )) }}">添加测试点</a>
+    </div>
+
+    <form action = "{{ url('polygon:update_cases', kwargs={'pk':problem_id, 'case_id': case_ID}) }}" method = 'post'> {% csrf_token %}
+        <div id="Display_cases_code">
+            {{ form.content }}
+            <button id="save_button" name = "submit">保存</button>
+            <a id="delete_button" href="{{ url('polygon:delete_case', kwargs={'pk':problem_id, 'case_id': case_ID}) }}">删除</a>
+        </div>
+    </form>
+{% endblock %}
+
+{% block script%}
+	<script>
+		var i=1;
+		$(".case_catalog_item").each(function(){
+			$(this).text(i.toString())
+			if(i=={{case_ID}})
+			$(this).css("border-style","solid")
+			$(this).css("border-color","#0c59f4")
+			$(this).css("border-width","2px")
+			i++;
+		})
+//		$("#exam_zhuti_top").css("border-bottom-style","none")
+		var a=window.screen.height*0.8;
+		$("#Display_cases_code").css("height",a);
+		$("#delete_button").click(function(){
+//			alert($(this).attr("value")+$(this).attr("id"))
+			var r = confirm("您确认删除本测试用例吗")
+            if (r == true) {
+                location.href=$(this).attr("value");
+            }
+		})
+		$("#Display_cases_code textarea").attr("id","Display_cases")
+	</script>
+{% endblock %}
+

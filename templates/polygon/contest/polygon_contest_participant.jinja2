@@ -1,0 +1,71 @@
+{% extends 'base.jinja2' %}
+
+{% block title %}
+    编辑测试用户
+{% endblock %}
+
+<!DOCTYPE html>
+
+{% block content %}
+    <div class="contest_problem_search">
+        <div class="contest_problem_title"><h1>编辑用户</h1></div>
+        <form action="{{ url('polygon:contest_add_one_participant', args=(contest_id, )) }}" method="post">{% csrf_token %}
+            <div class="contest_problem_search_button">
+                <button name = "submit"> 添加 </button>
+            </div>
+            <div class="contest_problem_search_input">
+                <input type="text" name="username">
+            </div>
+        </form>
+    </div>
+
+    <form action="{{ url('polygon:add_participant_by_class', args=(contest_id, )) }}" method="post">{% csrf_token %}
+        {% if class_list %}
+            <p style="width:30%; margin-left:70%; font-size: 16px; ">按班级添加
+                <select name='class_id' style="border-radius: 5px; font-size: 16px; width: 200px; padding-left: 12px;
+                        padding-top: 3px; height: 30px;">
+                    {% for c in class_list %}
+					    <option value="{{ c.id }}">{{ c }}</option>
+                    {% endfor %}
+                </select>
+                <button name="submit">添加</button>
+            </p>
+        {% endif %}
+    </form>
+
+    </div>
+        <table class="polygon_contest_problem_list">
+            <tr>
+				<th class="number">#</th>
+				<th>用户名</th>
+				<th>姓名</th>
+				<th>上次登录</th>
+				<th>操作</th>
+			</tr>
+            {% for participant in participant_list %}
+                <tr class="polygon_contest_problem">
+                    <td class="number">{{ participant.user.id }}</td>
+                    <td class="td_title">{{participant.user.username[:20]}}{% if participant.username | length > 20 %}...{% endif %}</td>
+                    <td>
+                        {% if participant.user.name %}
+                            {{ participant.user.name }}
+                        {% else %}
+                            无
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if participant.user.last_login %}
+                            {{ participant.user.last_login.strftime('%Y-%m-%d %H:%M:%S') }}
+                        {% else %}
+                            无登录记录
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a class="text_op" href="{{ url('polygon:contest_remove_user', args=(contest_id, participant.user.id, )) }}">移除</a>
+                    </td>
+                </tr>
+			{% endfor %}
+	    </table>
+    </div>
+
+{% endblock %}

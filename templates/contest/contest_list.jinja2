@@ -1,0 +1,70 @@
+{% extends 'base.jinja2' %}
+
+{% block css %}
+    <style>
+        .polygon_contest_list .th_title{
+            cursor:pointer;
+            width: 25%;
+            text-align:left;
+        }
+        .polygon_contest_list .td_title{
+            cursor:pointer;
+            width: 25%;
+            text-align:left;
+            color: #4183c4;
+        }
+    </style>
+{% endblock %}
+
+{% block title %}
+    测试
+{% endblock %}
+
+{% block content %}
+    <div class="contest_menu_container">
+        <div class="menu_title"><h1>测试</h1></div>
+{#        <div class="menu_button">#}
+{#            <a href="{{ url('polygon:add_contest') }}">添加测试</a>#}
+{#        </div>#}
+    </div>
+    <table class="polygon_contest_list">
+        <tr>
+            <th class="number">#</th>
+            <th class="th_title">名称</th>
+            <th>类型</th>
+            <th>开始</th>
+            <th>时长</th>
+            <th>取最高</th>
+            <th>每题尝试次数</th>
+            <th>状态</th>
+            <th>权限</th>
+        </tr>
+        {% for contest in contest_list  %}
+			<tr class="contest" >
+				<td class="number">{{ contest.id }}</td>
+                <td class="td_title" onclick="location.href='{{ url('contest:dashboard', args=(contest.id, )) }}';">{{contest.title[:20]}}{% if contest.title | length > 20 %}...{% endif %}</td>
+				<td >{% if contest.contest_type == 0 %}测试{% else %}实验{% endif %}</td>
+                <td>{{ contest.start_time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+				<td>{{ contest.length }}</td>
+                <td>{% if contest.is_best_counts %}是{% else %}否{% endif %}</td>
+                <td>{{ contest.max_try }}</td>
+                {% if contest.status == -1 %}
+                    <td style="color: #FF8C00; font-weight: bolder">未开始</td>
+                {% elif contest.status == 0 %}
+                    <td style="color: #2DB84B; font-weight: bolder">进行中</td>
+                {% else %}
+                    <td style="font-weight: bolder">已结束</td>
+                {% endif %}
+                {% if contest.access_level == 0 %}
+                    <td style="color: red; font-weight: bold">管理员可见</td>
+                {% elif contest.access_level == 10 %}
+                    <td style="color: #617df8; font-weight: bold">受邀请</td>
+                {% else %}
+                    <td style="color: #2DB84B; font-weight: bold">公开</td>
+                {% endif %}
+			</tr>
+        {% endfor %}
+	</table>
+    <div id="exam_bottom" style="height: 200px;"><p></p></div>
+{% endblock %}
+
