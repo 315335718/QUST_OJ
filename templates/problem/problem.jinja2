@@ -21,7 +21,8 @@
     <div class="problem_submit_field">
         <p class="problem_submit_label"><strong>源代码：</strong></p>
         <form action="{{ url('problem:submit', args=(problem.id, 0, )) }}" method="post">{% csrf_token %}
-            <textarea class="code_textarea" name="code">select * from employee where age < 18</textarea>
+            <textarea class="code_textarea" name="code"></textarea>
+{#            <textarea class="code_textarea" name="code">select * from employee where age < 18</textarea>#}
             <button name="submit" class="problem_submit_button"> 提交 </button>
         </form>
     </div>
