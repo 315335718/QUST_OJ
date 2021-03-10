@@ -53,6 +53,8 @@ class ProblemView(ProblemDetailMixin, TemplateView):
     def get_context_data(self, **kwargs):
         data = super(ProblemView, self).get_context_data()
         data['problem'] = self.problem
+        if not self.request.user.is_authenticated:
+            return HttpResponseRedirect('/')
         return data
 
 
@@ -94,6 +96,8 @@ class ProblemSubmissionsView(View):
     template_name = 'problem/problem_submissions.jinja2'
 
     def get(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return HttpResponseRedirect('/')
         problem_id = kwargs.get('pk')
         p = Problem.objects.get(id=problem_id)
         queryset = Submission.objects.filter(Q(author_id=request.user.id) & Q(problem_id=p.id))
@@ -109,6 +113,8 @@ class AllSubmissionsView(View):
     template_name = 'problem/submissions.jinja2'
 
     def get(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return HttpResponseRedirect('/')
         queryset = Submission.objects.all()
         contents = {
             'submission_list': queryset,
@@ -122,6 +128,8 @@ class ProblemListView(ListView):
     context_object_name = 'problem_list'
 
     def get_queryset(self):
+        if not self.request.user.is_authenticated:
+            return HttpResponseRedirect('/')
         queryset = Problem.objects.all()
         if not is_admin_or_root(self.request.user):
             queryset = queryset.filter(visible=True)

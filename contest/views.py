@@ -17,6 +17,8 @@ class ContestListView(ListView):
     context_object_name = 'contest_list'
 
     def get_queryset(self):
+        if not self.request.user.is_authenticated:
+            return HttpResponseRedirect('/')
         user = self.request.user if self.request.user.is_authenticated else None
         return Contest.objects.get_status_list(show_all=is_admin_or_root(self.request.user), filter_user=user)
 
@@ -35,6 +37,8 @@ class InvitationCodeInputView(View):
     form_class = InvitationCodeForm
 
     def get(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return HttpResponseRedirect('/')
         form = self.form_class()
         return render(request, self.template_name, {'form': form})
 
@@ -55,6 +59,8 @@ class DashboardView(View):
     template_name = 'contest/dashboard.jinja2'
 
     def get(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return HttpResponseRedirect('/')
         pk = self.kwargs['pk']
         contest = Contest.objects.get(id=pk)
         if contest.status == -1:
@@ -99,6 +105,8 @@ class ContestProblemView(View):
     template_name = 'contest/contest_problem.jinja2'
 
     def get(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return HttpResponseRedirect('/')
         pk = self.kwargs['pk']
         p_pk = self.kwargs['p_pk']
         contest = Contest.objects.get(pk=pk)
@@ -119,6 +127,8 @@ class ContestMySubmissionsView(View):
     template_name = 'contest/contest_submissions.jinja2'
 
     def get(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return HttpResponseRedirect('/')
         pk = self.kwargs['pk']
         contest = Contest.objects.get(pk=pk)
         if contest.status == -1:
@@ -141,6 +151,8 @@ class ContestSubmissionsView(View):
     template_name = 'contest/contest_submissions.jinja2'
 
     def get(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return HttpResponseRedirect('/')
         pk = self.kwargs['pk']
         contest = Contest.objects.get(pk=pk)
         if contest.status == -1:
@@ -158,6 +170,8 @@ class StandingsView(View):
     template_name = 'contest/standings.jinja2'
 
     def get(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return HttpResponseRedirect('/')
         pk = self.kwargs['pk']
         contest = Contest.objects.get(id=pk)
         if contest.status == -1:

@@ -27,6 +27,8 @@ class AddProblemView(FormView):
     form_class = ProblemForm
 
     def form_valid(self, form):
+        if not self.request.user.is_authenticated or not self.request.user.is_superuser:
+            return HttpResponseRedirect('/')
         form.create()
         self.success_url = reverse("polygon:problem_list")
         return super().form_valid(form)
@@ -38,6 +40,8 @@ class ProblemListView(ListView):
     context_object_name = 'problem_list'
 
     def get_queryset(self):
+        if not self.request.user.is_authenticated or not self.request.user.is_superuser:
+            return HttpResponseRedirect('/')
         queryset = Problem.objects.all()
         if not is_admin_or_root(self.request.user):
             queryset = queryset.filter(visible=True)
@@ -49,10 +53,11 @@ class ProblemListView(ListView):
 class UpdateProblemView(FormView):
     template_name = 'polygon/problem/update_problem.jinja2'
     form_class = UpdateProblemForm
-
     # success_url = 'polygon/problem_list'
 
     def get(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated or not self.request.user.is_superuser:
+            return HttpResponseRedirect('/')
         problem_id = self.kwargs['pk']
         p = Problem.objects.get(id=problem_id)
         form = self.form_class(instance=p)
@@ -75,6 +80,8 @@ class UpdateProblemView(FormView):
 
 class DeleteProblemView(View):
     def get(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated or not self.request.user.is_superuser:
+            return HttpResponseRedirect('/')
         problem_id = kwargs.get('pk')
         p = Problem.objects.get(id=problem_id)
         # 删除测试用例
@@ -93,6 +100,8 @@ class AddCaseView(View):
     form_class = CaseForm
 
     def get(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated or not self.request.user.is_superuser:
+            return HttpResponseRedirect('/')
         form = self.form_class()
         cur_pk = kwargs.get('pk')
         return render(request, self.template_name, {'form': form, 'cur_pk': cur_pk})
@@ -124,6 +133,8 @@ class UpdateCasesView(FormView):
     form_class = UpdateCasesForm
 
     def get(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated or not self.request.user.is_superuser:
+            return HttpResponseRedirect('/')
         problem_id = self.kwargs['pk']
         case_id = self.kwargs['case_id']
         p = Problem.objects.get(id=problem_id)
@@ -157,6 +168,8 @@ class UpdateCasesView(FormView):
 
 class DeleteCaseView(View):
     def get(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated or not self.request.user.is_superuser:
+            return HttpResponseRedirect('/')
         problem_id = self.kwargs['pk']
         case_id = self.kwargs['case_id']
         p = Problem.objects.get(id=problem_id)

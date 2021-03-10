@@ -12,8 +12,8 @@ class AddClassView(FormView):
     form_class = SchoolClassForm
 
     def form_valid(self, form):
-        if not self.request.user.is_superuser:
-            return HttpResponseRedirect('/reject/')
+        if not self.request.user.is_authenticated or not self.request.user.is_superuser:
+            return HttpResponseRedirect('/')
         teacher = self.request.user
         form.create(teacher.id)
         self.success_url = reverse('schoolclass:show_class', kwargs={'pk': 0})
@@ -25,8 +25,8 @@ class UpdateClassView(FormView):
     form_class = UpdateClassForm
 
     def get(self, request, *args, **kwargs):
-        if not self.request.user.is_superuser:
-            return HttpResponseRedirect('/reject/')
+        if not self.request.user.is_authenticated or not self.request.user.is_superuser:
+            return HttpResponseRedirect('/')
         class_id = self.kwargs['pk']
         try:
             school_class = SchoolClass.objects.get(id=class_id)
@@ -54,8 +54,8 @@ class UpdateClassView(FormView):
 
 class DeleteClassView(View):
     def get(self, request, *args, **kwargs):
-        if not self.request.user.is_superuser:
-            return HttpResponseRedirect('/reject/')
+        if not self.request.user.is_authenticated or not self.request.user.is_superuser:
+            return HttpResponseRedirect('/')
         class_id = kwargs.get('pk')
         try:
             school_class = SchoolClass.objects.get(id=class_id)
@@ -73,8 +73,8 @@ class AddStudentView(FormView):
     form_class = AddStudentForm
 
     def get(self, request, *args, **kwargs):
-        if not self.request.user.is_superuser:
-            return HttpResponseRedirect('/reject/')
+        if not self.request.user.is_authenticated or not self.request.user.is_superuser:
+            return HttpResponseRedirect('/')
         class_id = self.kwargs['pk']
         try:
             school_class = SchoolClass.objects.get(id=class_id)
@@ -102,8 +102,8 @@ class AddStudentView(FormView):
 
 class DeleteStudentView(View):
     def get(self, request, *args, **kwargs):
-        if not self.request.user.is_superuser:
-            return HttpResponseRedirect('/reject/')
+        if not self.request.user.is_authenticated or not self.request.user.is_superuser:
+            return HttpResponseRedirect('/')
         student_id = kwargs.get('s_pk')
         class_id = kwargs.get('c_pk')
         try:
@@ -116,8 +116,8 @@ class DeleteStudentView(View):
 
 class DeleteALLStudentView(View):
     def get(self, request, *args, **kwargs):
-        if not self.request.user.is_superuser:
-            return HttpResponseRedirect('/reject/')
+        if not self.request.user.is_authenticated or not self.request.user.is_superuser:
+            return HttpResponseRedirect('/')
         class_id = kwargs.get('pk')
         try:
             school_class = SchoolClass.objects.get(id=class_id)
@@ -134,8 +134,8 @@ class ShowClassView(FormView):
     template_name = 'schoolclass/show_class.jinja2'
 
     def get(self, request, *args, **kwargs):
-        if not self.request.user.is_superuser:
-            return HttpResponseRedirect('/reject/')
+        if not self.request.user.is_authenticated or not self.request.user.is_superuser:
+            return HttpResponseRedirect('/')
         cur_pk = kwargs.get('pk')
         teacher = self.request.user
         t_id = teacher.id
@@ -157,8 +157,8 @@ class ShowClassView(FormView):
 
 class ResetPasswordView(View):
     def get(self, request, *args, **kwargs):
-        if not self.request.user.is_superuser:
-            return HttpResponseRedirect('/reject/')
+        if not self.request.user.is_authenticated or not self.request.user.is_superuser:
+            return HttpResponseRedirect('/')
         student_id = kwargs.get('s_pk')
         class_id = kwargs.get('c_pk')
         try:
