@@ -46,10 +46,11 @@ class RegisterForm(forms.ModelForm):
             self.add_error('repeat_password', forms.ValidationError("两次输入的密码不一致。", code='invalid'))
         return data
 
+
 class LoginForm(AuthenticationForm):
     def __init__(self, request=None, *args, **kwargs):
         super(LoginForm, self).__init__(request, *args, **kwargs)
-        self.fields['username'].label = "用户名或邮箱"
+        self.fields['username'].label = "用户名"
         self.fields['password'].label = "密码"
 
     remember_me = forms.BooleanField(label="记住我", required=False)
