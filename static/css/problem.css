@@ -61,6 +61,8 @@
     margin-bottom: 0px;
     text-align: left;
     font-size: 15px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 .problem_submit_field .problem_submit_label {
