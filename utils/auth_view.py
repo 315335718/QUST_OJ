@@ -81,7 +81,8 @@ def login(request, template_name,
         redirect_field_name: redirect_to,
         'site': current_site,
         'site_name': current_site.name,
-        'error_flag': error_flag
+        'error_flag': error_flag,
+        'not_has': 1,
     }
     if extra_context is not None:
         context.update(extra_context)

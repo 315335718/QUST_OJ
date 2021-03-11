@@ -24,6 +24,13 @@
             <div class="log_field">
                 <a href="{{ url('logout') }}">登出</a>
             </div>
+        {% elif not_has %}
+            <div class="user_field">
+                <a href=""> </a>
+            </div>
+            <div class="log_field">
+                <a href="{{ url('register') }}">注册</a>
+            </div>
         {% else %}
             <div class="user_field">
                 <a href=""> </a>
