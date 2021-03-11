@@ -19,7 +19,7 @@
     <div class="menu_right">
         {% if request.user.is_authenticated %}
             <div class="user_field">
-                <a href="">{{ request.user.username }}</a>
+                <a href="{{ url('password') }}">{{ request.user.username }}</a>
             </div>
             <div class="log_field">
                 <a href="{{ url('logout') }}">登出</a>

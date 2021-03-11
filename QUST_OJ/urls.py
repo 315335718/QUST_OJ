@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 from home.views import home_view
-from account.views import RegisterView, my_login
+from account.views import RegisterView, my_login, ModifyPasswordView
 from utils.auth_view import logout, reject
 
 urlpatterns = [
@@ -26,6 +26,7 @@ urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', my_login, name='login'),
     path('logout/', logout, name='logout'),
+    path('password/', ModifyPasswordView.as_view(), name='password'),
     path('reject/', reject, name='reject'),
     path('polygon/', include(('polygon.urls', 'polygon'), namespace='polygon')),
     path('schoolclass/', include(('schoolclass.urls', 'schoolclass'), namespace='schoolclass')),
