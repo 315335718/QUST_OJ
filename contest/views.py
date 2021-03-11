@@ -1,10 +1,17 @@
+import xlwt
+import time
+import random
+import os
+
 from django.shortcuts import render, redirect, reverse
 from django.views.generic import ListView, View
 from django import forms
 from django.db.models import Q
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import timezone
+from django.utils.encoding import escape_uri_path
 
+from QUST_OJ.settings import EXCEL_ROOT
 from contest.models import Contest, ContestParticipant
 from problem.models import Problem
 from submission.models import Submission
@@ -50,7 +57,7 @@ class InvitationCodeInputView(View):
             user_input = form.cleaned_data['content']
             if user_input == contest.invitation_code:
                 ContestParticipant.objects.create(user=self.request.user, contest=contest)
-                return HttpResponseRedirect(reverse('contest:dashboard', args=(contest.id, )))
+                return HttpResponseRedirect(reverse('contest:dashboard', args=(contest.id,)))
             else:
                 return HttpResponseRedirect(reverse('contest:list'))
 
@@ -72,7 +79,7 @@ class DashboardView(View):
             if is_admin_or_root(self.request.user) or contest.access_level == 20:
                 ContestParticipant.objects.create(user=self.request.user, contest=contest)
             elif contest.access_level == 10:
-                return redirect(reverse('contest:invitation_code', args=(contest.id, )))
+                return redirect(reverse('contest:invitation_code', args=(contest.id,)))
             else:
                 return redirect('/reject/')
         contest_problem = contest.contestproblem_set.all()
@@ -98,7 +105,8 @@ class DashboardView(View):
         problem_score = 0
         if contest.status == 0:
             problem_score = round(100 * ((contest.end_time - now) / contest.length), 2)
-        return render(request, self.template_name, {'result': result, 'contest': contest, 'problem_score': problem_score})
+        return render(request, self.template_name,
+                      {'result': result, 'contest': contest, 'problem_score': problem_score})
 
 
 class ContestProblemView(View):
@@ -213,4 +221,87 @@ class StandingsView(View):
                     one['total'] += 1
             result.append(one)
         result.sort(key=lambda x: x['score'], reverse=True)
-        return render(request, self.template_name, {'result': result, 'contest': contest})
+        return render(request, self.template_name, {'result': result, 'contest': contest, 'user': self.request.user})
+
+
+class OutputStandingsToExcelView(View):
+
+    def get(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return HttpResponseRedirect('/')
+        pk = self.kwargs['pk']
+        contest = Contest.objects.get(id=pk)
+        if contest.status == -1:
+            redirect(reverse('contest:list'))
+        contest_participant = contest.contestparticipant_set.all()
+        contest_problem = contest.contestproblem_set.all()
+        submissions = contest.submission_set.all()
+        result = []
+        for it in contest_participant:
+            participant = it.user
+            one = dict()
+            one['user'] = participant
+            one['score'] = 0
+            one['total'] = 0
+            for ij in contest_problem:
+                problem = ij.problem
+                max_score = 0
+                sum_score = 0
+                flag = 0
+                count = 0
+                for submission in submissions:
+                    if submission.author_id == participant.id and submission.problem_id == problem.id:
+                        count += 1
+                        if submission.status_percent > 99.9:
+                            flag = 1
+                        time_score = 100
+                        if contest.is_time_score:
+                            time_score = 100 * ((contest.end_time - submission.create_time) / contest.length)
+                        now_score = submission.status_percent * time_score / 100
+                        if now_score > max_score:
+                            max_score = now_score
+                        sum_score += now_score
+                if contest.is_best_counts:
+                    one['score'] += max_score
+                else:
+                    if count != 0:
+                        one['score'] += sum_score / count
+                if flag:
+                    one['total'] += 1
+            result.append(one)
+        result.sort(key=lambda x: x['score'], reverse=True)
+
+        data = xlwt.Workbook(encoding='utf-8')
+        sheet = data.add_sheet('sheet1', cell_overwrite_ok=True)
+        sheet.write(0, 0, "学号")
+        sheet.write(0, 1, "姓名")
+        sheet.write(0, 2, "做对题数")
+        sheet.write(0, 3, "最终成绩")
+        thisrow = 1
+        for ele in result:
+            sheet.write(thisrow, 0, ele['user'].username)
+            sheet.write(thisrow, 1, ele['user'].name)
+            sheet.write(thisrow, 2, ele['total'])
+            sheet.write(thisrow, 3, ele['score'])
+            thisrow += 1
+
+        ticks = int(time.time())
+        excel_dir = str(EXCEL_ROOT)
+
+        del_list = os.listdir(excel_dir)
+        for f in del_list:
+            file_path = os.path.join(excel_dir, f)
+            os.remove(file_path)
+
+        excel_file = excel_dir + '/' + str(ticks) + str(random.randint(1, 100)) + str(random.randint(1, 100)) + '.xls'
+        data.save(excel_file)
+
+        with open(excel_file, 'rb') as f:
+            try:
+                download_name = contest.title + '____榜单.xls'
+                response = HttpResponse(f)
+                response['content_type'] = "application/octet-stream"
+                response['Content-Disposition'] = "attachment; filename*=utf-8''{}".format(escape_uri_path(download_name))
+                return response
+            except Exception:
+                raise Http404

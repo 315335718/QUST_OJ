@@ -126,12 +126,11 @@
 	background-color: #69d862;;
 	color: white;
 	border-style: none;
-	font-size: 18px;
-
-	padding-top: 0.5%;
-	padding-bottom: 0.5%;
-	padding-left: 1%;
-	padding-right: 1%;
+	font-size: 15px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 12px;
+	padding-right: 12px;
 	outline: 5px auto white;
 	margin-left: 20%;
 	cursor: pointer;
@@ -143,7 +142,7 @@
 	background-color: #69d862;
 	color: white;
 	border-style: none;
-	font-size: 18px;
+	font-size: 16px;
 	padding-top: 0.5%;
 	padding-bottom: 0.5%;
 	padding-left: 1%;
@@ -159,8 +158,6 @@
 	background-color: #56aa50;
 	color: white;
 	border-style: none;
-	font-size: 18px;
-
 	padding-top: 0.5%;
 	padding-bottom: 0.5%;
 	padding-left: 1%;
@@ -176,7 +173,6 @@
 	background-color: #f6260ac2;
 	color: white;
 	border-style: none;
-	font-size: 18px;
 	padding-top: 0.5%;
 	padding-bottom: 0.5%;
 	padding-left: 1%;
@@ -231,7 +227,7 @@
 	color: white;
 	width: 10%;
 	border-style: none;
-	font-size: 18px;
+	font-size: 16px;
 	padding-top: 0.5%;
 	padding-bottom: 0.5%;
 	padding-left: 1%;
@@ -246,7 +242,7 @@
 	color: white;
 	width: 10%;
 	border-style: none;
-	font-size: 18px;
+	font-size: 16px;
 	padding-top: 0.5%;
 	padding-bottom: 0.5%;
 	padding-left: 1%;
@@ -261,7 +257,7 @@
 	color: white;
 	width: 10%;
 	border-style: none;
-	font-size: 18px;
+	font-size: 16px;
 	padding-top: 0.5%;
 	padding-bottom: 0.5%;
 	padding-left: 1%;
@@ -277,7 +273,6 @@
 	color: white;
 	width: 10%;
 	border-style: none;
-	font-size: 18px;
 	padding-top: 0.5%;
 	padding-bottom: 0.5%;
 	padding-left: 1%;
@@ -292,7 +287,6 @@
 	color: white;
 	width: 10%;
 	border-style: none;
-	font-size: 18px;
 	padding-top: 0.5%;
 	padding-bottom: 0.5%;
 	padding-left: 1%;
@@ -307,7 +301,6 @@
 	color: white;
 	width: 10%;
 	border-style: none;
-	font-size: 18px;
 	padding-top: 0.5%;
 	padding-bottom: 0.5%;
 	padding-left: 1%;

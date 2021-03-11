@@ -1,6 +1,8 @@
-import time, random
+import time
+import random
 
 from django import forms
+from django.core.exceptions import ValidationError
 
 from .models import SchoolClass
 from account.models import User
@@ -75,11 +77,8 @@ class AddStudentForm(forms.ModelForm):
 
     def create(self, class_pk):
         instance = self.save(commit=False)
-        if User.objects.exists():
-            new_id = User.objects.order_by("id").last().id + 1
-            instance.id = new_id
-        else:
-            instance.id = 1
+        new_id = User.objects.order_by("id").last().id + 1
+        instance.id = new_id
         ticks = int(time.time())
         fake_email = str(ticks) + str(random.randint(1, 100)) + str(random.randint(1, 100)) + '@' + 'qq.com'
         instance.email = fake_email
@@ -91,3 +90,12 @@ class AddStudentForm(forms.ModelForm):
     def clean(self):
         data = super(AddStudentForm, self).clean()
         return data
+
+
+def validate_excel(value):
+     if value.name.split('.')[-1] not in ['xls', 'xlsx']:
+        raise ValidationError('Invalid File Type: %(value)s', params={'value': value},)
+
+
+class ExcelInputForm(forms.Form):
+    excel = forms.FileField(label='学生excel，第一行为表头(学号，姓名，密码)，第二行开始是数据', validators=[validate_excel])

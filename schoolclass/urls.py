@@ -1,6 +1,7 @@
 from django.urls import path
 
-from schoolclass.views import AddClassView, UpdateClassView, DeleteClassView, AddStudentView, DeleteStudentView, DeleteALLStudentView, ShowClassView, ResetPasswordView
+from schoolclass.views import AddClassView, UpdateClassView, DeleteClassView, AddStudentView, DeleteStudentView, \
+    DeleteALLStudentView, ShowClassView, ResetPasswordView, AddStudentsByExcelView
 
 urlpatterns = [
     path('add_class/', AddClassView.as_view(), name='add_class'),
@@ -11,4 +12,5 @@ urlpatterns = [
     path('<int:pk>/delete_all_student/', DeleteALLStudentView.as_view(), name='delete_all_student'),
     path('<int:pk>/show_class/', ShowClassView.as_view(), name='show_class'),
     path('<int:c_pk>/reset_password/<int:s_pk>/', ResetPasswordView.as_view(), name='reset_password'),
+    path('<int:pk>/add_students_by_excel/', AddStudentsByExcelView.as_view(), name='add_students_by_excel'),
 ]

@@ -1,7 +1,7 @@
 from django.urls import path
 
 from contest.views import ContestListView, DashboardView, InvitationCodeInputView, ContestProblemView, \
-    ContestMySubmissionsView, ContestSubmissionsView, StandingsView
+    ContestMySubmissionsView, ContestSubmissionsView, StandingsView, OutputStandingsToExcelView
 
 urlpatterns = [
     path('list/', ContestListView.as_view(), name='list'),
@@ -11,4 +11,5 @@ urlpatterns = [
     path('<int:pk>/my_submissions/', ContestMySubmissionsView.as_view(), name='my_submissions'),
     path('<int:pk>/submissions/', ContestSubmissionsView.as_view(), name='submissions'),
     path('<int:pk>/standings/', StandingsView.as_view(), name='standings'),
+    path('<int:pk>/standings_to_excel/', OutputStandingsToExcelView.as_view(), name='standings_to_excel'),
 ]

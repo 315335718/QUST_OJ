@@ -2,6 +2,7 @@ from django.db import models
 
 from account.models import User
 
+
 class SchoolClass(models.Model):
     name = models.CharField("班级名", max_length=80, blank=False, unique=True)
     year = models.CharField("学年", max_length=30, choices=(

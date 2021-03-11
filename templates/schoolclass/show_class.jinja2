@@ -14,7 +14,7 @@
         <div id="class_management">
 			<p id="class_management_p">班级管理</p>
 			{% for sc in class_list %}
-			    <p class="class_management_name"><a href="{{ url('schoolclass:show_class', args=(sc.id, )) }}">{{ sc.name }}</a></p>
+			    <p class="class_management_name"><a href="{{ url('schoolclass:show_class', args=(sc.id, )) }}">{{ sc.name[:10] }}{% if sc.name | length > 10 %}...{% endif %}</a></p>
 			{% endfor %}
 			<a id="class_management_button" href="{{ url('schoolclass:add_class') }}">
 			<i class="fa fa-plus" aria-hidden="true" style="color: #69d862;"></i>新建班级</a>
@@ -23,18 +23,13 @@
             <div id="class_edit">
                 <div id="class_description_div">
                     <p id="class_description">{{ cur_class.name }}&emsp;&emsp;{{ cur_class.year }}&emsp;&emsp;{{ cur_class.semester }}</p>
-				    <a id="button_1" href="{{ url('schoolclass:update_class', args=(cur_class.id, )) }}" >信息编辑</a>
-				    <a id="button_2" href="{{ url('schoolclass:delete_class', args=(cur_class.id, )) }}">删除班级</a>
                 </div>
 				<div id="second">
-					<form id="search_form" action="" method="post">
-{#						<!--{{csrf}}-->#}
-                        <input type="text" placeholder="搜索..." autocomplete="off" class="search" >
-                        <button id="search_button"><i class="fa fa-search" aria-hidden="true" style=""></i></button>
-					</form>
-					<a id="button_1" href="{{ url('schoolclass:add_student', args=(cur_class.id, )) }}">添加学生</a>
-					<a id="button_2" href="">导入学生</a>
-					<a id="button_3" href="{{ url('schoolclass:delete_all_student', args=(cur_class.id, )) }}">删除全部</a>
+                    <a id="button_2" href="{{ url('schoolclass:update_class', args=(cur_class.id, )) }}" >信息编辑</a>
+                    <a id="button_2" href="{{ url('schoolclass:add_student', args=(cur_class.id, )) }}">添加学生</a>
+					<a id="button_2" href="{{ url('schoolclass:add_students_by_excel', args=(cur_class.id, )) }}">导入学生</a>
+                    <a id="button_2" href="{{ url('schoolclass:delete_all_student', args=(cur_class.id, )) }}">删除全部</a>
+				    <a id="button_2" href="{{ url('schoolclass:delete_class', args=(cur_class.id, )) }}">删除班级</a>
 				</div>
             </div>
             <table>

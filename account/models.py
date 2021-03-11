@@ -24,6 +24,7 @@ class UsernameLengthValidator(BaseValidator):
         except UnicodeEncodeError:
             return len(x)
 
+
 class User(AbstractUser):
     username_validators = [UsernameValidator(), UsernameLengthValidator(6)]
     username = models.CharField("用户名", max_length=30, unique=True,
