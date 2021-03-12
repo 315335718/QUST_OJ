@@ -25,11 +25,10 @@ class ProblemDetailMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixi
         self.user = request.user
         self.privileged = is_problem_manager(self.user, self.problem)
         self.request = request
-        self.contest_id = self.kwargs['c_pk']
         return super(ProblemDetailMixin, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
-        return self.privileged or self.problem.visible or self.contest_id > 0
+        return self.privileged or self.problem.visible
 
     def get_context_data(self, **kwargs):
         data = super(ProblemDetailMixin, self).get_context_data(**kwargs)
@@ -68,7 +67,26 @@ def check_try_max(contest, participant_id, problem_id):
         return 0
 
 
-class ProblemSubmitView(ProblemDetailMixin, View):
+class ContestProblemDetailMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin):
+
+    def dispatch(self, request, *args, **kwargs):
+        self.problem = get_object_or_404(Problem, pk=kwargs.get('pk'))
+        self.user = request.user
+        self.privileged = is_problem_manager(self.user, self.problem)
+        self.request = request
+        self.contest_id = kwargs.get('c_pk')
+        return super(ContestProblemDetailMixin, self).dispatch(request, *args, **kwargs)
+
+    def test_func(self):
+        return self.privileged or self.problem.visible or self.contest_id > 0
+
+    def get_context_data(self, **kwargs):
+        data = super(ContestProblemDetailMixin, self).get_context_data(**kwargs)
+        data['problem'] = self.problem
+        return data
+
+
+class ProblemSubmitView(ContestProblemDetailMixin, View):
 
     def test_func(self):
         return super(ProblemSubmitView, self).test_func() and self.user.is_authenticated

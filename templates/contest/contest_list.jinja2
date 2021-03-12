@@ -47,7 +47,7 @@
                 <td>{{ contest.start_time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
 				<td>{{ contest.length }}</td>
                 <td>{% if contest.is_best_counts %}是{% else %}否{% endif %}</td>
-                <td>{{ contest.max_try }}</td>
+                <td style="color: red; font-weight: bolder">{{ contest.max_try }}</td>
                 {% if contest.status == -1 %}
                     <td style="color: #FF8C00; font-weight: bolder">未开始</td>
                 {% elif contest.status == 0 %}
