@@ -25,10 +25,11 @@ class ProblemDetailMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixi
         self.user = request.user
         self.privileged = is_problem_manager(self.user, self.problem)
         self.request = request
+        self.contest_id = self.kwargs['c_pk']
         return super(ProblemDetailMixin, self).dispatch(request, *args, **kwargs)
 
     def test_func(self):
-        return self.privileged or self.problem.visible
+        return self.privileged or self.problem.visible or self.contest_id > 0
 
     def get_context_data(self, **kwargs):
         data = super(ProblemDetailMixin, self).get_context_data(**kwargs)
