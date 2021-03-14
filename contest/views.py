@@ -145,7 +145,7 @@ class ContestMySubmissionsView(View):
         # participant_id = self.request.user.id
         # if not contest_participant.filter(user_id=participant_id).exists():
         #     redirect('/reject/')
-        queryset = Submission.objects.filter(Q(author_id=request.user.id) & Q(contest_id=pk))
+        queryset = Submission.objects.filter(Q(author_id=request.user.id) & Q(contest_id=pk))[:50]
         contents = {
             'flag': 1,
             'user': request.user,
@@ -165,7 +165,7 @@ class ContestSubmissionsView(View):
         contest = Contest.objects.get(pk=pk)
         if contest.status == -1:
             redirect(reverse('contest:list'))
-        queryset = Submission.objects.filter(Q(contest_id=pk))
+        queryset = Submission.objects.filter(Q(contest_id=pk))[:100]
         contents = {
             'flag': 0,
             'contest': contest,

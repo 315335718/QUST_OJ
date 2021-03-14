@@ -12,7 +12,7 @@
             {% if request.user.is_authenticated and request.user.is_superuser %}
                 |<a href="{{ url('polygon:problem_list') }}" class="fun">题目管理</a>
                 |<a href="{{ url('schoolclass:show_class', args=(0, )) }}" class="fun">班级管理</a>
-                |<a href="{{ url('polygon:contest_list') }}" class="fun">实验管理</a>
+                |<a href="{{ url('polygon:contest_list') }}" class="fun">测试管理</a>
             {% endif %}
         </div>
     </div>

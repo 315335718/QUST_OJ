@@ -119,7 +119,7 @@ class ProblemSubmissionsView(View):
             return HttpResponseRedirect('/')
         problem_id = kwargs.get('pk')
         p = Problem.objects.get(id=problem_id)
-        queryset = Submission.objects.filter(Q(author_id=request.user.id) & Q(problem_id=p.id))
+        queryset = Submission.objects.filter(Q(author_id=request.user.id) & Q(problem_id=p.id))[:50]
         contents = {
             'user': request.user,
             'problem': p,
