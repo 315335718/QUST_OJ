@@ -205,7 +205,6 @@ class AddStudentsByExcelView(View):
                 username = str(data[i][0])
                 name = str(data[i][1])
                 password = make_password(str(data[i][2]))
-                print(password)
                 if User.objects.filter(username=username).exists():
                     User.objects.filter(username=username).update(name=name, password=password, school_class_id=pk)
                     # user.save(update_fields=['name', 'password', 'school_class_id'])

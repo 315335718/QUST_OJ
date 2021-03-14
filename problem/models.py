@@ -24,7 +24,7 @@ class Problem(models.Model):
         ('查询类', '查询类'),
         ('更新类', '更新类'),
         ('创建视图类', '创建视图类'),
-        ('创建基本表类', '创建基本表类'),
+        ('创建基本表', '创建基本表'),
     ), default='查询类')
     level = models.CharField("题目难度", max_length=20, choices=(
         ('简单', '简单'),

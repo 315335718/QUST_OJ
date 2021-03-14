@@ -57,7 +57,7 @@ class ProblemForm(forms.ModelForm):
 class UpdateProblemForm(forms.ModelForm):
     class Meta:
         model = Problem
-        fields = ['title', 'description', 'checker', 'problem_type', 'level']
+        fields = ['title', 'description', 'checker', 'problem_type', 'level', 'visible']
         error_messages = {
             'title': {
                 'require': "请输入题目名称。"

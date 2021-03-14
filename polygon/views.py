@@ -12,7 +12,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db import transaction
 
 from account.models import User
-from contest.models import Contest, ContestParticipant
+from contest.models import Contest, ContestParticipant, ContestProblem
 from problem.models import Problem
 from schoolclass.models import SchoolClass
 from polygon.forms import ProblemForm, UpdateProblemForm, CaseForm, UpdateCasesForm
@@ -20,6 +20,7 @@ from polygon.forms import UpdateContestForm
 from account.permissions import is_contest_manager
 from home.search_api import get_problem_q_object, sorted_query
 from account.permissions import is_admin_or_root
+from submission.models import Submission
 
 
 class AddProblemView(FormView):
@@ -83,15 +84,17 @@ class DeleteProblemView(View):
         if not self.request.user.is_authenticated or not self.request.user.is_superuser:
             return HttpResponseRedirect('/')
         problem_id = kwargs.get('pk')
-        p = Problem.objects.get(id=problem_id)
-        # 删除测试用例
-        this_dir = p.address
-        file_list = os.listdir(this_dir)
-        for f in file_list:
-            file_path = os.path.join(this_dir, f)
-            os.remove(file_path)
-        os.removedirs(this_dir)
-        Problem.objects.filter(id=problem_id).delete()
+        if not ContestProblem.objects.filter(problem_id=problem_id).exists():
+            p = Problem.objects.get(id=problem_id)
+            # 删除测试用例
+            this_dir = p.address
+            file_list = os.listdir(this_dir)
+            for f in file_list:
+                file_path = os.path.join(this_dir, f)
+                os.remove(file_path)
+            os.removedirs(this_dir)
+            Problem.objects.filter(id=problem_id).delete()
+            Submission.objects.filter(problem_id=problem_id).delete()
         return HttpResponseRedirect(reverse("polygon:problem_list"))
 
 

@@ -104,7 +104,7 @@ class DashboardView(View):
         now = timezone.now()
         problem_score = 0
         if contest.status == 0:
-            problem_score = round(100 * ((contest.end_time - now) / contest.length), 2)
+            problem_score = round(60 + 40 * (contest.end_time - now) / contest.length, 2)
         return render(request, self.template_name,
                       {'result': result, 'contest': contest, 'problem_score': problem_score})
 
@@ -208,7 +208,7 @@ class StandingsView(View):
                         time_score = 100
                         if contest.is_time_score:
                             time_score = 100 * ((contest.end_time - submission.create_time) / contest.length)
-                        now_score = submission.status_percent * time_score / 100
+                        now_score = submission.status_percent * 0.6 + submission.status_percent * 0.4 * time_score / 100
                         if now_score > max_score:
                             max_score = now_score
                         sum_score += now_score

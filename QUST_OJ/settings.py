@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '*293)87u=845v-yi$!-!f!igqr&l1ucpz*go1hv!)j%)vre&ws'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -151,12 +151,13 @@ UES_TZ = False
 
 
 STATIC_URL = '/static/'  # 只有起别名的作用
-STATIC_ROOT = BASE_DIR / 'static'
+S_ROOT = BASE_DIR / 'static'
 STATICFILES_DIRS = [
-    ("img", STATIC_ROOT / "img"),
-    ("css", STATIC_ROOT / "css"),
-    ("js", STATIC_ROOT / "js"),
+    ("img", S_ROOT / "img"),
+    ("css", S_ROOT / "css"),
+    ("js", S_ROOT / "js"),
 ]
+STATIC_ROOT = '/var/www/myweb_nginx/static/'
 # 当运行 python manage.py collectstatic 的时候
 # STATIC_ROOT 文件夹 是用来将所有STATICFILES_DIRS中所有文件夹中的文件，以及各app中static中的文件都复制过来
 # 把这些文件放到一起是为了部署的时候更方便

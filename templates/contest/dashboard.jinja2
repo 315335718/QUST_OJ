@@ -56,6 +56,9 @@
             <p><a href="{{ url('contest:my_submissions', args=(contest.id, )) }}">我的提交</a></p>
             <p><a href="{{ url('contest:submissions', args=(contest.id, )) }}">所有提交</a></p>
             <p><a href="{{ url('contest:standings', args=(contest.id, )) }}">榜单</a></p>
+            {% if user.is_superuser %}
+                <p><a href="{{ url('contest:standings_to_excel', args=(contest.id, )) }}">导出榜单</a></p>
+            {% endif %}
         </div>
     </div>
     <div style="width: 100%; height: 0px; margin: 0; display:inline-block;"></div>
