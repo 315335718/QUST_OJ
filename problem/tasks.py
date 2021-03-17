@@ -13,6 +13,12 @@ def create_submission(problem, author: User, code, contest=None, status=Submissi
                       visible=True):
     if not 6 <= len(code) <= 65536:
         raise ValueError("代码不得小于 6 字节，不得超过 65536 字节。")
+    if author.submission_set.exists() and (
+            datetime.now() - author.submission_set.first().create_time).total_seconds() < 5:
+        raise ValueError("5 秒内只能提交一次。")
+    if contest:
+        if contest.submission_set.filter(author_id=author.id, problem_id=problem.id, code__exact=code).exists():
+            raise ValueError("你之前交过完全一样的代码。")
     problem.total_count += 1
     problem.save(update_fields=['total_count'])
     return Submission.objects.create(code=code, author=author, problem=problem, contest=contest,
