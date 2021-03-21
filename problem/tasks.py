@@ -72,7 +72,8 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
 
             if SubmissionStatus.is_judged(data.get('verdict')):
                 submission.judge_end_time = judge_time
-                submission.save(update_fields=['judge_end_time'])
+                submission.status_message = data.get('status_message')
+                submission.save(update_fields=['judge_end_time', 'status_message'])
                 if submission.status_percent > 99.9:
                     problem.ac_count += 1
                     problem.save(update_fields=['ac_count'])
