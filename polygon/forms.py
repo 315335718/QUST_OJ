@@ -75,11 +75,12 @@ class UpdateProblemForm(forms.ModelForm):
 
     def create(self, form, problem_id):
         p = Problem.objects.get(pk=problem_id)
-        p.title = form.data['title']
-        p.description = form.data['description']
-        p.checker = form.data['checker']
-        p.problem_type = form.data['problem_type']
-        p.level = form.data['level']
+        p.title = form.cleaned_data['title']
+        p.description = form.cleaned_data['description']
+        p.checker = form.cleaned_data['checker']
+        p.problem_type = form.cleaned_data['problem_type']
+        p.level = form.cleaned_data['level']
+        p.visible = form.cleaned_data['visible']
         info = get_table(p.problem_type, p.description, p.checker)
         p.table_to_delete = info['table_to_delete']
         p.table_to_do = info['other']

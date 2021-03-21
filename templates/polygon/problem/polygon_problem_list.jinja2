@@ -20,6 +20,7 @@
             <th>难度</th>
             <th>创建时间</th>
             <th>修改时间</th>
+            <th>是否可见</th>
             <th class="operation">操作</th>
         </tr>
         {% for problem in problem_list  %}
@@ -31,6 +32,11 @@
 				<td>{{ problem.level }}</td>
                 <td>{{ problem.create_time.strftime('%Y-%m-%d') }}</td>
 				<td>{{ problem.update_time.strftime('%Y-%m-%d') }}</td>
+                {% if problem.visible == True %}
+                    <td style="font-weight: bold; color: #009A08;">是</td>
+                {% else %}
+                    <td style="font-weight: bold; color: #FF0A32;">否</td>
+                {% endif %}
 				<td>
 					{% if request.user.is_superuser %}
                         <i class="fa fa-edit" title="编辑" style="color: green;font-size: 20px;" aria-hidden="true" onclick="location.href='{{ url('polygon:update_problem', args=(problem.id,)) }}';"></i>
