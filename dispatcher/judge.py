@@ -38,10 +38,8 @@ def send_judge_through_watch(code, checker, cases, table, problem_type, callback
             judge_url = server.http_address + '/judge'
             watch_url = server.http_address + '/query'
             timeout_count = 0
-
-            # 加上时间戳
             response = add_timestamp_to_reply(requests.post(judge_url, json=data, auth=(DEFAULT_USERNAME, server.token),
-                                                            timeout=timeout).json())
+                                                             timeout=timeout).json())
             if response.get('status') != 'received':
                 callback(response)
             while timeout_count < timeout:
@@ -52,15 +50,17 @@ def send_judge_through_watch(code, checker, cases, table, problem_type, callback
                                                                timeout=timeout).json())
                 if callback(response):
                     # report_instance.content = requests.get(watch_report, json={'fingerprint': data['fingerprint']},
-                    #                                     auth=(DEFAULT_USERNAME, server.token), timeout=timeout).text
+                    #                                     auth=(DEFAULT_USERNAME, server.token),
+                    #                                     =timeout).text
                     # report_instance.save()
                     break
                 timeout_count += interval
                 interval += interval
             if timeout_count >= timeout:
                 raise RuntimeError("Send judge through socketio timed out.")
-        except:
+        except Exception as e:
             msg = "Time: %s\n%s" % (datetime.now(), traceback.format_exc())
+            msg += str(e)
             logger.error(msg)
             # send_mail(subject="Submit fail notice", message=msg, from_email=None,
             #           recipient_list=settings.ADMIN_EMAIL_LIST,
