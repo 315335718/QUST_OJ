@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from home.views import home_view
+from home.views import home_view, forbidden_view
 from account.views import RegisterView, my_login, ModifyPasswordView
 from utils.auth_view import logout, reject
 
@@ -33,3 +33,5 @@ urlpatterns = [
     path('problem/', include(('problem.urls', 'problem'), namespace='problem')),
     path('contest/', include(('contest.urls', 'contest'), namespace='contest')),
 ]
+
+handler403 = forbidden_view
