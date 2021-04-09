@@ -32,6 +32,7 @@ urlpatterns = [
     path('schoolclass/', include(('schoolclass.urls', 'schoolclass'), namespace='schoolclass')),
     path('problem/', include(('problem.urls', 'problem'), namespace='problem')),
     path('contest/', include(('contest.urls', 'contest'), namespace='contest')),
+    path('api/', include(('api.urls', 'api'), namespace='api')),
 ]
 
 handler403 = forbidden_view

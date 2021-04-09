@@ -44,10 +44,12 @@ INSTALLED_APPS = [
     'submission',
     'dispatcher',
     'contest',
+    'api',
 
     # third
     'django_jinja',
     'django_q',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -110,6 +112,13 @@ DATABASES = {
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
 }
 
 # Password validation
@@ -197,4 +206,3 @@ Q_CLUSTER = {
     'django_redis': 'default',
     'label': 'WARNING',  # 用于Django Admin页面的标签。
 }
-

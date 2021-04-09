@@ -126,5 +126,6 @@ def logout(request, next_page=None,
 
     return TemplateResponse(request, template_name, context)
 
+
 def reject(request):
     return render(request, 'reject.jinja2')

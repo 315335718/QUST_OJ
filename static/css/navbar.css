@@ -14,7 +14,7 @@
 
 .top_menu .menu_left{
 	height: inherit;
-	width: 62%;
+	width: 70%;
 	/*border: 2px solid red;*/
 	display: flex;
 	align-items: center;
@@ -71,7 +71,7 @@
 .top_menu .menu_right {
 	height: inherit;
 	left: 62%;
-	width: 37%;
+	width: 29%;
 	/*border: 2px solid blue;*/
 	display: flex;
 	align-items: center;
@@ -79,8 +79,8 @@
 
 .top_menu .menu_right .user_field {
 	height: inherit;
-	width: 100px;
-	margin-left: 56%;
+	width: 20%;
+	margin-left: 40%;
 	/*border: 2px solid purple;*/
 	display: flex;
 	justify-content: space-around;
@@ -103,7 +103,7 @@
 
 .top_menu .menu_right .log_field {
 	height: inherit;
-	margin-left: 0%;
+	margin-left: 5%;
 	/*border: 2px yellow;*/
 	display: flex;
 	align-items: center;
