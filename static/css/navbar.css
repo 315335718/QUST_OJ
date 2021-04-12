@@ -15,7 +15,7 @@
 .top_menu .menu_left{
 	height: inherit;
 	width: 70%;
-	border: 2px solid red;
+	/*border: 2px solid red;*/
 	display: flex;
 	align-items: center;
 }
@@ -29,7 +29,7 @@
 
 .top_menu .menu_left .title_field {
 	height: inherit;
-	border: 2px solid orange;
+	/*border: 2px solid orange;*/
 	margin-left: 1.6%;
 	display: flex;
 	position: relative;
@@ -39,7 +39,7 @@
 .top_menu .menu_left .fun_field {
 	height: inherit;
 	width: 56%;
-	border: 2px solid purple;
+	/*border: 2px solid purple;*/
 	margin-left: 36px;
 	display: flex;
 	position: relative;
