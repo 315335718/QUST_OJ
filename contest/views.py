@@ -257,7 +257,7 @@ class OutputStandingsToExcelView(View):
                         time_score = 100
                         if contest.is_time_score:
                             time_score = 100 * ((contest.end_time - submission.create_time) / contest.length)
-                        now_score = submission.status_percent * time_score / 100
+                        now_score = submission.status_percent * 0.6 + submission.status_percent * 0.4 * time_score / 100
                         if now_score > max_score:
                             max_score = now_score
                         sum_score += now_score
