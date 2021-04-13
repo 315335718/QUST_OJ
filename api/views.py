@@ -8,6 +8,7 @@ from django.views import View
 # from django.http import HttpResponse
 
 from problem.models import Problem
+from submission.models import Submission
 
 
 # class HelloView(View):
@@ -47,4 +48,19 @@ class ProblemView(APIView):
         # problem = Problem.objects.filter(visible=True)
         problem = Problem.objects.all()
         serializer = ProblemSerializer(problem, many=True)
+        return Response(serializer.data)
+
+
+class SubmissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Submission
+        fields = ("code", "problem", "create_time", "code_length", "status", "status_percent", "status_message", "ip")
+
+
+class SubmissionsView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        submissions = Submission.objects.all()
+        serializer = SubmissionSerializer(submissions, many=True)
         return Response(serializer.data)
