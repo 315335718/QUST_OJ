@@ -47,6 +47,7 @@ class Contest(models.Model):
 
     is_best_counts = models.BooleanField("是否使用最高成绩", default=False)
     is_time_score = models.BooleanField("得分是否随时间衰减", default=False)
+    time_score_wait = models.IntegerField('多长时间后分数衰减（分钟）', default=20)
     standings_to_student = models.BooleanField('是否排行榜展示给学生', default=True)
     max_try = models.IntegerField('最大尝试次数', default=3)
     invitation_code = models.CharField("邀请码(当比赛的访问控制为「受邀请时」使用)", max_length=192, default='123456')

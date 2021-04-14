@@ -2,6 +2,7 @@ import xlwt
 import time
 import random
 import os
+from datetime import timedelta
 
 from django.shortcuts import render, redirect, reverse
 from django.views.generic import ListView, View
@@ -103,8 +104,14 @@ class DashboardView(View):
             result.append(one)
         now = timezone.now()
         problem_score = 0
+        time_score = 100
+        time_score_delta = timedelta(minutes=contest.time_score_wait)
+        if contest.is_time_score:
+            time_delta = now - contest.start_time
+            if time_delta > time_score_delta and contest.length != time_score_delta:
+                time_score = 100 * ((contest.end_time - now) / (contest.length - time_score_delta))
         if contest.status == 0:
-            problem_score = round(60 + 40 * (contest.end_time - now) / contest.length, 2)
+            problem_score = round(60 + 40 * time_score / 100, 2)
         return render(request, self.template_name,
                       {'result': result, 'contest': contest, 'problem_score': problem_score})
 
@@ -206,8 +213,11 @@ class StandingsView(View):
                         if submission.status_percent > 99.9:
                             flag = 1
                         time_score = 100
+                        time_score_delta = timedelta(minutes=contest.time_score_wait)
                         if contest.is_time_score:
-                            time_score = 100 * ((contest.end_time - submission.create_time) / contest.length)
+                            time_delta = submission.create_time - contest.start_time
+                            if time_delta > time_score_delta and contest.length != time_score_delta:
+                                time_score = 100 * ((contest.end_time - submission.create_time) / (contest.length - time_score_delta))
                         now_score = submission.status_percent * 0.6 + submission.status_percent * 0.4 * time_score / 100
                         if now_score > max_score:
                             max_score = now_score
@@ -255,8 +265,12 @@ class OutputStandingsToExcelView(View):
                         if submission.status_percent > 99.9:
                             flag = 1
                         time_score = 100
+                        time_score_delta = timedelta(minutes=contest.time_score_wait)
                         if contest.is_time_score:
-                            time_score = 100 * ((contest.end_time - submission.create_time) / contest.length)
+                            time_delta = submission.create_time - contest.start_time
+                            if time_delta > time_score_delta and contest.length != time_score_delta:
+                                time_score = 100 * ((contest.end_time - submission.create_time) / (
+                                            contest.length - time_score_delta))
                         now_score = submission.status_percent * 0.6 + submission.status_percent * 0.4 * time_score / 100
                         if now_score > max_score:
                             max_score = now_score

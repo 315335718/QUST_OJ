@@ -115,7 +115,7 @@ class UpdateContestForm(forms.ModelForm):
         exclude = ['problems', 'participants', 'managers', 'create_time', 'standings_to_student']
 
     field_order = ['title', 'description', 'contest_type', 'start_time', 'end_time', 'access_level', 'max_try',\
-                   'invitation_code', 'is_best_count', 'is_time_score']
+                   'invitation_code', 'is_time_score', 'time_score_wait', 'is_best_count']
 
     def __init__(self, *args, **kwargs):
         super(UpdateContestForm, self).__init__(*args, **kwargs)
