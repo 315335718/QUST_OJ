@@ -70,8 +70,8 @@ class DashboardView(View):
             return HttpResponseRedirect('/')
         pk = self.kwargs['pk']
         contest = Contest.objects.get(id=pk)
-        if contest.status == -1:
-            redirect(reverse('contest:list'))
+        if not request.user.is_superuser and contest.status != 0:
+            return redirect(reverse('contest:list'))
         contest_participant = contest.contestparticipant_set.all()
         participant_id = self.request.user.id
         flag = contest_participant.filter(user_id=participant_id).exists()
@@ -118,8 +118,8 @@ class ContestProblemView(View):
         pk = self.kwargs['pk']
         p_pk = self.kwargs['p_pk']
         contest = Contest.objects.get(pk=pk)
-        if contest.status == -1:
-            redirect(reverse('contest:list'))
+        if not request.user.is_superuser and contest.status != 0:
+            return redirect(reverse('contest:list'))
         problem = Problem.objects.get(pk=p_pk)
         now = timezone.now()
         if now > contest.end_time:
@@ -139,8 +139,8 @@ class ContestMySubmissionsView(View):
             return HttpResponseRedirect('/')
         pk = self.kwargs['pk']
         contest = Contest.objects.get(pk=pk)
-        if contest.status == -1:
-            redirect(reverse('contest:list'))
+        if not request.user.is_superuser and contest.status != 0:
+            return redirect(reverse('contest:list'))
         # contest_participant = contest.contestparticipant_set.all()
         # participant_id = self.request.user.id
         # if not contest_participant.filter(user_id=participant_id).exists():
@@ -163,8 +163,8 @@ class ContestSubmissionsView(View):
             return HttpResponseRedirect('/')
         pk = self.kwargs['pk']
         contest = Contest.objects.get(pk=pk)
-        if contest.status == -1:
-            redirect(reverse('contest:list'))
+        if not request.user.is_superuser and contest.status != 0:
+            return redirect(reverse('contest:list'))
         queryset = Submission.objects.filter(Q(contest_id=pk))[:100]
         contents = {
             'flag': 0,
@@ -182,8 +182,8 @@ class StandingsView(View):
             return HttpResponseRedirect('/')
         pk = self.kwargs['pk']
         contest = Contest.objects.get(id=pk)
-        if contest.status == -1:
-            redirect(reverse('contest:list'))
+        if not request.user.is_superuser and contest.status != 0:
+            return redirect(reverse('contest:list'))
         contest_participant = contest.contestparticipant_set.all()
         contest_problem = contest.contestproblem_set.all()
         submissions = contest.submission_set.all()
@@ -231,8 +231,8 @@ class OutputStandingsToExcelView(View):
             return HttpResponseRedirect('/')
         pk = self.kwargs['pk']
         contest = Contest.objects.get(id=pk)
-        if contest.status == -1:
-            redirect(reverse('contest:list'))
+        if not request.user.is_superuser and contest.status != 0:
+            return redirect(reverse('contest:list'))
         contest_participant = contest.contestparticipant_set.all()
         contest_problem = contest.contestproblem_set.all()
         submissions = contest.submission_set.all()
