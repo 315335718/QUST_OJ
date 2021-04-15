@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404, reverse
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.views.generic.base import ContextMixin, TemplateResponseMixin
@@ -11,11 +11,13 @@ from django.db.models import Q
 from ipware.ip import get_client_ip
 
 from account.permissions import is_problem_manager
+from account.models import User
 from problem.models import Problem
 from contest.models import Contest
 from submission.models import Submission
 from problem.tasks import create_submission, judge_submission_on_problem
 from account.permissions import is_admin_or_root
+from problem.safe import drop_database_safe
 
 
 class ProblemDetailMixin(TemplateResponseMixin, ContextMixin, UserPassesTestMixin):
@@ -101,6 +103,14 @@ class ProblemSubmitView(ContestProblemDetailMixin, View):
                 flag = check_try_max(contest, self.request.user.id, self.problem.id)
                 if flag == 1:
                     return HttpResponseRedirect(reverse("contest:dashboard", args=(c_pk,)))
+            flag = 1;
+            flag &= drop_database_safe(code)
+            if flag == 0:
+                baned_user = User.objects.get(pk=request.user.id)
+                baned_user.is_active = 0
+                baned_user.username += " 被检测为恶意用户，已被封禁"
+                baned_user.save(update_fields=['username', 'is_active'])
+                return redirect('/reject/')
             submission = create_submission(self.problem, self.user, code, contest, ip=get_client_ip(request))
             async_task(judge_submission_on_problem, submission)
             if contest is not None:

@@ -46,8 +46,10 @@
                         {% endif %}</td>
                     {% if submission.author.is_superuser %}
                         <td class="submit_username" style="color: red; font-weight: bolder">{{ submission.author.username }}</td>
-                    {% else %}
+                    {% elif submission.author.is_active %}
                         <td class="submit_username">{{ submission.author.username }}</td>
+                    {% else %}
+                         <td class="submit_username" style="color: black; font-weight: bolder">{{ submission.author.username }}</td>
                     {% endif %}
                     <td class="submited_problem"><a href="{{ url('problem:detail', args=(submission.problem.id, )) }}">{{ submission.problem.id }}</a></td>
                     {% if submission.status == -3 %}
