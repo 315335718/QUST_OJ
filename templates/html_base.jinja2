@@ -27,10 +27,8 @@
 
 <body>
     {% block _content %}{% endblock %}
+    <script src="{{ static('js/jquery-3.1.1.min.js') }}"></script>
+    {% block script %}{% endblock %}
 </body>
-
-<script src="{{ static('js/jquery-3.1.1.min.js') }}"></script>
-
-{% block script %}{% endblock %}
 
 </html>
