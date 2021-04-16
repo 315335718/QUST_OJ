@@ -130,7 +130,7 @@ class ProblemSubmissionsView(View):
             return HttpResponseRedirect('/')
         problem_id = kwargs.get('pk')
         p = Problem.objects.get(id=problem_id)
-        queryset = Submission.objects.filter(Q(author_id=request.user.id) & Q(problem_id=p.id) & Q(contest_id=None))[:50]
+        queryset = Submission.objects.filter(Q(author_id=request.user.id) & Q(problem_id=p.id) & Q(contest_id=None))[:20]
         contents = {
             'user': request.user,
             'problem': p,
@@ -145,7 +145,7 @@ class AllSubmissionsView(View):
     def get(self, request, *args, **kwargs):
         if not self.request.user.is_authenticated:
             return HttpResponseRedirect('/')
-        queryset = Submission.objects.filter(contest_id=None)[:200]
+        queryset = Submission.objects.filter(contest_id=None)[:35]
         contents = {
             'submission_list': queryset,
         }

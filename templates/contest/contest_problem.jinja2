@@ -18,7 +18,9 @@
             <p><a href="{{ url('contest:dashboard', args=(contest.id, )) }}">总览</a></p>
             <p><a href="{{ url('contest:my_submissions', args=(contest.id, )) }}">我的提交</a></p>
             <p><a href="{{ url('contest:submissions', args=(contest.id, )) }}">所有提交</a></p>
-            <p><a href="{{ url('contest:standings', args=(contest.id, )) }}">榜单</a></p>
+            {% if user.is_superuser or contest.status == 1 %}
+                <p><a href="{{ url('contest:standings', args=(contest.id, )) }}">榜单</a></p>
+            {% endif %}
             {% if user.is_superuser %}
                 <p><a href="{{ url('contest:standings_to_excel', args=(contest.id, )) }}">导出榜单</a></p>
             {% endif %}

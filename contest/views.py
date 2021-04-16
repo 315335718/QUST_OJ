@@ -63,6 +63,58 @@ class InvitationCodeInputView(View):
                 return HttpResponseRedirect(reverse('contest:list'))
 
 
+# class DashboardView(View):
+#     template_name = 'contest/dashboard.jinja2'
+#
+#     def get(self, request, *args, **kwargs):
+#         if not self.request.user.is_authenticated:
+#             return HttpResponseRedirect('/')
+#         pk = self.kwargs['pk']
+#         contest = Contest.objects.get(id=pk)
+#         if not request.user.is_superuser and contest.status != 0:
+#             return redirect(reverse('contest:list'))
+#         contest_participant = contest.contestparticipant_set.all()
+#         participant_id = self.request.user.id
+#         flag = contest_participant.filter(user_id=participant_id).exists()
+#         if not flag:
+#             if is_admin_or_root(self.request.user) or contest.access_level == 20:
+#                 ContestParticipant.objects.create(user=self.request.user, contest=contest)
+#             elif contest.access_level == 10:
+#                 return redirect(reverse('contest:invitation_code', args=(contest.id,)))
+#             else:
+#                 return redirect('/reject/')
+#         contest_problem = contest.contestproblem_set.all()
+#         problems = []
+#         for it in contest_problem:
+#             problems.append(it.problem)
+#         submissions = contest.submission_set.all()
+#         result = []
+#         for problem in problems:
+#             one = dict()
+#             one['id'] = problem.id
+#             one['title'] = problem.title
+#             count = 0
+#             for it in contest_participant:
+#                 user = it.user
+#                 for submission in submissions:
+#                     if submission.author_id == user.id and submission.problem_id == problem.id and submission.status_percent > 99.9:
+#                         count += 1
+#                         break
+#             one['total'] = count
+#             result.append(one)
+#         now = timezone.now()
+#         problem_score = 0
+#         time_score = 100
+#         time_score_delta = timedelta(minutes=contest.time_score_wait)
+#         if contest.is_time_score:
+#             time_delta = now - contest.start_time
+#             if time_delta > time_score_delta and contest.length != time_score_delta:
+#                 time_score = 100 * ((contest.end_time - now) / (contest.length - time_score_delta))
+#         if contest.status == 0:
+#             problem_score = round(60 + 40 * time_score / 100, 2)
+#         return render(request, self.template_name,
+#                       {'result': result, 'contest': contest, 'problem_score': problem_score})
+
 class DashboardView(View):
     template_name = 'contest/dashboard.jinja2'
 
@@ -71,7 +123,7 @@ class DashboardView(View):
             return HttpResponseRedirect('/')
         pk = self.kwargs['pk']
         contest = Contest.objects.get(id=pk)
-        if not request.user.is_superuser and contest.status != 0:
+        if not request.user.is_superuser and contest.status < 0:
             return redirect(reverse('contest:list'))
         contest_participant = contest.contestparticipant_set.all()
         participant_id = self.request.user.id
@@ -87,20 +139,11 @@ class DashboardView(View):
         problems = []
         for it in contest_problem:
             problems.append(it.problem)
-        submissions = contest.submission_set.all()
         result = []
         for problem in problems:
             one = dict()
             one['id'] = problem.id
             one['title'] = problem.title
-            count = 0
-            for it in contest_participant:
-                user = it.user
-                for submission in submissions:
-                    if submission.author_id == user.id and submission.problem_id == problem.id and submission.status_percent > 99.9:
-                        count += 1
-                        break
-            one['total'] = count
             result.append(one)
         now = timezone.now()
         problem_score = 0
@@ -125,7 +168,7 @@ class ContestProblemView(View):
         pk = self.kwargs['pk']
         p_pk = self.kwargs['p_pk']
         contest = Contest.objects.get(pk=pk)
-        if not request.user.is_superuser and contest.status != 0:
+        if not request.user.is_superuser and contest.status < 0:
             return redirect(reverse('contest:list'))
         problem = Problem.objects.get(pk=p_pk)
         now = timezone.now()
@@ -146,13 +189,13 @@ class ContestMySubmissionsView(View):
             return HttpResponseRedirect('/')
         pk = self.kwargs['pk']
         contest = Contest.objects.get(pk=pk)
-        if not request.user.is_superuser and contest.status != 0:
+        if not request.user.is_superuser and contest.status < 0:
             return redirect(reverse('contest:list'))
         # contest_participant = contest.contestparticipant_set.all()
         # participant_id = self.request.user.id
         # if not contest_participant.filter(user_id=participant_id).exists():
         #     redirect('/reject/')
-        queryset = Submission.objects.filter(Q(author_id=request.user.id) & Q(contest_id=pk))[:50]
+        queryset = Submission.objects.filter(Q(author_id=request.user.id) & Q(contest_id=pk))[:40]
         contents = {
             'flag': 1,
             'user': request.user,
@@ -170,9 +213,9 @@ class ContestSubmissionsView(View):
             return HttpResponseRedirect('/')
         pk = self.kwargs['pk']
         contest = Contest.objects.get(pk=pk)
-        if not request.user.is_superuser and contest.status != 0:
+        if not request.user.is_superuser and contest.status < 0:
             return redirect(reverse('contest:list'))
-        queryset = Submission.objects.filter(Q(contest_id=pk))[:100]
+        queryset = Submission.objects.filter(Q(contest_id=pk))[:40]
         contents = {
             'flag': 0,
             'contest': contest,
@@ -189,7 +232,7 @@ class StandingsView(View):
             return HttpResponseRedirect('/')
         pk = self.kwargs['pk']
         contest = Contest.objects.get(id=pk)
-        if not request.user.is_superuser and contest.status != 0:
+        if not request.user.is_superuser and contest.status < 0:
             return redirect(reverse('contest:list'))
         contest_participant = contest.contestparticipant_set.all()
         contest_problem = contest.contestproblem_set.all()
@@ -241,7 +284,7 @@ class OutputStandingsToExcelView(View):
             return HttpResponseRedirect('/')
         pk = self.kwargs['pk']
         contest = Contest.objects.get(id=pk)
-        if not request.user.is_superuser and contest.status != 0:
+        if not request.user.is_superuser and contest.status < 0:
             return redirect(reverse('contest:list'))
         contest_participant = contest.contestparticipant_set.all()
         contest_problem = contest.contestproblem_set.all()
