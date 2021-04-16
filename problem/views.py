@@ -55,6 +55,7 @@ class ProblemView(ProblemDetailMixin, TemplateView):
     def get_context_data(self, **kwargs):
         data = super(ProblemView, self).get_context_data()
         data['problem'] = self.problem
+        data['user'] = self.user
         if not self.request.user.is_authenticated:
             return HttpResponseRedirect('/')
         return data

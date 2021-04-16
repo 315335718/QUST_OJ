@@ -33,6 +33,7 @@ urlpatterns = [
     path('problem/', include(('problem.urls', 'problem'), namespace='problem')),
     path('contest/', include(('contest.urls', 'contest'), namespace='contest')),
     path('api/', include(('api.urls', 'api'), namespace='api')),
+    path('submission/', include(('submission.urls', 'submission'), namespace='submission')),
 ]
 
 handler403 = forbidden_view

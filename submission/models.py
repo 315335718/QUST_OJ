@@ -30,6 +30,9 @@ class Submission(models.Model):
     visible = models.BooleanField(default=True, db_index=True)
     ip = models.GenericIPAddressField(blank=True, null=True)
 
+    def __str__(self):
+        return '%d. %s --- %s' % (self.pk, self.author.username, self.problem.title)
+
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ, signature-differs
         self.code_length = len(self.code.encode())
         return super(Submission, self).save(*args, **kwargs)
