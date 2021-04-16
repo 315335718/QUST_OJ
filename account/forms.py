@@ -73,9 +73,8 @@ class ModifyPasswordForm(forms.Form):
                                        'require': "请输入用户名。"
                                    },
                                    label="用户名")
-    old_password = forms.CharField(help_text="至少六位", widget=forms.PasswordInput, min_length=6, required=True,
+    old_password = forms.CharField(help_text="请输入正确的旧密码", widget=forms.PasswordInput, required=True,
                                    error_messages={
-                                       'min_length': "密码太短。",
                                        'require': "请输入密码。"
                                    },
                                    label="旧密码")
