@@ -63,7 +63,7 @@ class ProblemView(ProblemDetailMixin, TemplateView):
 
 def check_try_max(contest, participant_id, problem_id):
     max_try = contest.max_try
-    submissions = Submission.objects.filter(author_id=participant_id, problem_id=problem_id, contest_id=contest.id)
+    submissions = contest.submission_set.filter(author_id=participant_id, problem_id=problem_id)[:max_try]
     if len(submissions) >= max_try:
         return 1
     else:
@@ -130,7 +130,8 @@ class ProblemSubmissionsView(View):
             return HttpResponseRedirect('/')
         problem_id = kwargs.get('pk')
         p = Problem.objects.get(id=problem_id)
-        queryset = Submission.objects.filter(Q(author_id=request.user.id) & Q(problem_id=p.id) & Q(contest_id=None))[:20]
+        user = self.request.user
+        queryset = user.submission_set.filter(problem_id=p.id)[:15]
         contents = {
             'user': request.user,
             'problem': p,
@@ -145,7 +146,7 @@ class AllSubmissionsView(View):
     def get(self, request, *args, **kwargs):
         if not self.request.user.is_authenticated:
             return HttpResponseRedirect('/')
-        queryset = Submission.objects.filter(contest_id=None)[:35]
+        queryset = Submission.objects.all()[:30]
         contents = {
             'submission_list': queryset,
         }
