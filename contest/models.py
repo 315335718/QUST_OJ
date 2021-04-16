@@ -112,7 +112,7 @@ class Contest(models.Model):
         return [pool[problem_id] for problem_id in problem_ids]
 
     def __str__(self):
-        return self.title
+        return '%d. %s' % (self.pk, self.title)
 
 
 class ContestProblem(models.Model):
@@ -142,7 +142,7 @@ class ContestProblem(models.Model):
         return self.ac_count / self.total_count if self.total_count > 0 else 0.0
 
     def __str__(self):
-        return self.identifier + '. ' + self.problem.title
+        return '%d. %s --- %s' % (self.pk, self.contest.title, self.problem.title)
 
 class ContestParticipant(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -152,6 +152,9 @@ class ContestParticipant(models.Model):
     is_disabled = models.BooleanField(default=False)
     join_time = models.DateTimeField(blank=True, null=True)
     is_confirmed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return '%d. %s --- %s' % (self.pk, self.user.username, self.contest.title)
 
     def start_time(self, contest: Contest):
         # the contest should be a cached contest
