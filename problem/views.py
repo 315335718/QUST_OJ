@@ -117,7 +117,7 @@ class ProblemSubmitView(ContestProblemDetailMixin, View):
             if contest is not None:
                 return HttpResponseRedirect(reverse("contest:my_submissions", args=(c_pk,)))
             else:
-                return HttpResponseRedirect(reverse("problem:submissions", args=(self.problem.id, )))
+                return HttpResponseRedirect(reverse("problem:submissions", args=(self.problem.id,)))
         except Exception as e:
             return HttpResponseBadRequest(str(e).encode())
 
@@ -131,7 +131,8 @@ class ProblemSubmissionsView(View):
         problem_id = kwargs.get('pk')
         p = Problem.objects.get(id=problem_id)
         user = self.request.user
-        queryset = user.submission_set.filter(problem_id=p.id)[:15]
+        queryset = user.submission_set.filter(problem_id=p.id)[:20].select_related('author'). \
+            only('pk', 'create_time', 'judge_end_time', 'author_id', 'status', 'status_percent')
         contents = {
             'user': request.user,
             'problem': p,
@@ -146,7 +147,9 @@ class AllSubmissionsView(View):
     def get(self, request, *args, **kwargs):
         if not self.request.user.is_authenticated:
             return HttpResponseRedirect('/')
-        queryset = Submission.objects.all()[:30]
+        queryset = Submission.objects.all()[:50].select_related('problem', 'author'). \
+            only('pk', 'create_time', 'judge_end_time', 'author_id', 'problem_id', 'status', 'status_percent')
+        # queryset = Submission.objects.all()[:50] # 优化前
         contents = {
             'submission_list': queryset,
         }
@@ -161,10 +164,10 @@ class ProblemListView(ListView):
     def get_queryset(self):
         if not self.request.user.is_authenticated:
             return HttpResponseRedirect('/')
-        queryset = Problem.objects.all()
+        queryset = Problem.objects.all().only('pk', 'title', 'problem_type', 'level', 'ac_count', 'total_count',
+                                              'description')
         if not is_admin_or_root(self.request.user):
             queryset = queryset.filter(visible=True)
-        ret = queryset.defer("description").distinct()
-        ret = ret.order_by('id')
+        # ret = queryset.defer('description')
+        ret = queryset.order_by('id')
         return ret
-

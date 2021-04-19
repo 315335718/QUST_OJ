@@ -174,10 +174,10 @@ class ContestProblemView(View):
         now = timezone.now()
         if now > contest.end_time:
             return HttpResponseRedirect(reverse("contest:dashboard", args=(pk,)))
-        # contest_participant = contest.contestparticipant_set.all()
-        # participant_id = self.request.user.id
-        # if not contest_participant.filter(user_id=participant_id).exists():
-        #     redirect('/reject/')
+        contest_participant = contest.contestparticipant_set.all()
+        participant_id = self.request.user.id
+        if not contest_participant.filter(user_id=participant_id).exists():
+            redirect('/reject/')
         return render(request, self.template_name, {'contest': contest, 'problem': problem})
 
 
@@ -196,7 +196,8 @@ class ContestMySubmissionsView(View):
         # if not contest_participant.filter(user_id=participant_id).exists():
         #     redirect('/reject/')
         user = self.request.user
-        queryset = user.submission_set.filter(contest_id=pk)[:30]
+        queryset = user.submission_set.filter(contest_id=pk)[:30].select_related('contest', 'problem', 'author'). \
+            only('pk', 'author_id', 'problem_id', 'contest_id', 'create_time', 'judge_end_time', 'status', 'status_percent')
         contents = {
             'flag': 1,
             'user': request.user,
@@ -216,7 +217,8 @@ class ContestSubmissionsView(View):
         contest = Contest.objects.get(pk=pk)
         if not request.user.is_superuser and contest.status < 0:
             return redirect(reverse('contest:list'))
-        queryset = contest.submission_set.all()[:30]
+        queryset = contest.submission_set.all()[:50].select_related('contest', 'problem', 'author'). \
+            only('pk', 'author_id', 'problem_id', 'contest_id', 'create_time', 'judge_end_time', 'status', 'status_percent')
         contents = {
             'flag': 0,
             'contest': contest,
@@ -233,7 +235,7 @@ class StandingsView(View):
             return HttpResponseRedirect('/')
         pk = self.kwargs['pk']
         contest = Contest.objects.get(id=pk)
-        if not request.user.is_superuser and contest.status < 0:
+        if not request.user.is_superuser and (contest.status != 1):
             return redirect(reverse('contest:list'))
         contest_participant = contest.contestparticipant_set.all()
         contest_problem = contest.contestproblem_set.all()
