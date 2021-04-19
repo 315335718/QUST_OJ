@@ -25,6 +25,7 @@ SECRET_KEY = '*293)87u=845v-yi$!-!f!igqr&l1ucpz*go1hv!)j%)vre&ws'
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+INTERNAL_IPS = ['127.0.0.1']
 
 # Application definition
 
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
     'django_jinja',
     'django_q',
     'rest_framework',
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
@@ -60,6 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'QUST_OJ.urls'
@@ -193,7 +196,7 @@ SESSION_CACHE_ALIAS = "default"
 
 Q_CLUSTER = {
     'name': 'QUST_OJ',  # 项目名称
-    'workers': 10,  # worker数。默认为当前主机的CPU计数，
+    'workers': 15,  # worker数。默认为当前主机的CPU计数，
     'recycle': 500,  # worker在回收之前要处理的任务数。有助于定期释放内存资源。默认为500。
     'timeout': 600,  # 任务超时设置 10分钟
     'retry': 1200,
@@ -201,7 +204,7 @@ Q_CLUSTER = {
     # Limit the number of retry attempts for failed tasks. Set to 0 for infinite retries. Defaults to 0
     'cached': 3600,
     'save_limit': 250,  # 限制保存到Django的成功任务的数量。0为无限，-1则不会保存
-    'queue_limit': 20,  # 排队的任务数量，默认为workers**2。
+    'queue_limit': 500,  # 排队的任务数量，默认为workers**2。
     'cpu_affinity': 1,  # 设置每个工作人员可以使用的处理器数量。
     'django_redis': 'default',
     'label': 'WARNING',  # 用于Django Admin页面的标签。
