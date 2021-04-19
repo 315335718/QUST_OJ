@@ -11,9 +11,6 @@ class NotAvailable(Exception):
 
 
 class Semaphore(object):
-    """
-    Modified from: https://github.com/bluele/redis-semaphore/blob/master/redis_semaphore/__init__.py
-    """
 
     exists_val = 'ok'
 
