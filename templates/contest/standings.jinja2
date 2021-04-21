@@ -5,12 +5,35 @@
 {% endblock %}
 
 {% block content %}
-    <div style="text-align: center; width: 80%; height:10px; margin: 0;"><h1>{{ contest.title[:20] }}{% if contest.title | length > 30 %}...{% endif %}&nbsp&nbsp榜单</h1></div>
+    <div class="problem_title_field">
+        <h1>{{ contest.title[:30] }}{% if contest.title | length > 30 %}...{% endif %}</h1>
+        <h4>
+            <span style="color: red">注意：</span>
+            (1) 每题最大尝试次数: <span style="color: red">{{ contest.max_try }}</span>；&nbsp
+            (2) 使用每题「<span style="color: red">{% if contest.is_best_counts %} 最高成绩 {% else %} 平均成绩 {% endif %}</span>」作为最终成绩；&nbsp
+            (3) 当前每道题的分数为:&nbsp<span style="color: green">{% if contest.is_time_score %}{{ problem_score }}{% else %}100{% endif %}</span>&nbsp分。
+        </h4>
+    </div>
     <div class="problem_submissions_field">
+        <div class="problem_navbar_field">
+            <a class="problem_navbar" href="{{ url('contest:dashboard', args=(contest.id, )) }}">总览</a>
+            <a class="problem_navbar" href="{{ url('contest:my_submissions', args=(contest.id, )) }}">我的提交</a>
+            <a class="problem_navbar" href="{{ url('contest:submissions', args=(contest.id, )) }}">所有提交</a>
+            {% if user.is_superuser or contest.status == 1 %}
+                <a class="problem_navbar" href="{{ url('contest:standings', args=(contest.id, )) }}">榜单</a>
+            {% endif %}
+            {% if user.is_superuser %}
+                <a class="problem_navbar" href="{{ url('contest:standings_to_excel', args=(contest.id, )) }}">导出榜单</a>
+            {% endif %}
+        </div>
+        <div class="problem_navbar_fun_field">
+            <a class="problem_navbar" href="">可视化分析</a>
+        </div>
         <table class="problem_submission_list">
             <tr>
                 <th style="width: 10%">排名</th>
-                <th style="width: 70%">用户</th>
+                <th style="width: 35%">用户</th>
+                <th style="width: 35%">姓名</th>
                 <th style="width: 10%">满分题数</th>
                 <th style="width: 10%">总分</th>
             </tr>
@@ -18,24 +41,16 @@
                 <tr>
                     <td>{{ loop.index }}</td>
                     <td class="submit_username">{{ ele.user.username }}</td>
+                    {% if ele.user.name %}
+                        <td class="submit_username">{{ ele.user.name }}</td>
+                    {% else %}
+                        <td class="submit_username">无</td>
+                    {% endif %}
                     <td style="font-weight: bolder">{{ ele.total }}</td>
                     <td style="font-weight: bolder; color: #009A08">{{ ele.score | round(2) }}</td>
                 </tr>
             {% endfor %}
         </table>
-    </div>
-    <div class="problem_other_info_field">
-        <div class="problem_navbar">
-            <p><a href="{{ url('contest:dashboard', args=(contest.id, )) }}">总览</a></p>
-            <p><a href="{{ url('contest:my_submissions', args=(contest.id, )) }}">我的提交</a></p>
-            <p><a href="{{ url('contest:submissions', args=(contest.id, )) }}">所有提交</a></p>
-            {% if user.is_superuser or contest.status == 1 %}
-                <p><a href="{{ url('contest:standings', args=(contest.id, )) }}">榜单</a></p>
-            {% endif %}
-            {% if user.is_superuser %}
-                <p><a href="{{ url('contest:standings_to_excel', args=(contest.id, )) }}">导出榜单</a></p>
-            {% endif %}
-        </div>
     </div>
     <div style="width: 100%; height: 0px; margin: 0; display:inline-block;"></div>
 {% endblock %}

@@ -15,7 +15,6 @@ from django.utils.encoding import escape_uri_path
 from QUST_OJ.settings import EXCEL_ROOT
 from contest.models import Contest, ContestParticipant
 from problem.models import Problem
-from submission.models import Submission
 from account.permissions import is_admin_or_root
 
 
@@ -63,57 +62,18 @@ class InvitationCodeInputView(View):
                 return HttpResponseRedirect(reverse('contest:list'))
 
 
-# class DashboardView(View):
-#     template_name = 'contest/dashboard.jinja2'
-#
-#     def get(self, request, *args, **kwargs):
-#         if not self.request.user.is_authenticated:
-#             return HttpResponseRedirect('/')
-#         pk = self.kwargs['pk']
-#         contest = Contest.objects.get(id=pk)
-#         if not request.user.is_superuser and contest.status != 0:
-#             return redirect(reverse('contest:list'))
-#         contest_participant = contest.contestparticipant_set.all()
-#         participant_id = self.request.user.id
-#         flag = contest_participant.filter(user_id=participant_id).exists()
-#         if not flag:
-#             if is_admin_or_root(self.request.user) or contest.access_level == 20:
-#                 ContestParticipant.objects.create(user=self.request.user, contest=contest)
-#             elif contest.access_level == 10:
-#                 return redirect(reverse('contest:invitation_code', args=(contest.id,)))
-#             else:
-#                 return redirect('/reject/')
-#         contest_problem = contest.contestproblem_set.all()
-#         problems = []
-#         for it in contest_problem:
-#             problems.append(it.problem)
-#         submissions = contest.submission_set.all()
-#         result = []
-#         for problem in problems:
-#             one = dict()
-#             one['id'] = problem.id
-#             one['title'] = problem.title
-#             count = 0
-#             for it in contest_participant:
-#                 user = it.user
-#                 for submission in submissions:
-#                     if submission.author_id == user.id and submission.problem_id == problem.id and submission.status_percent > 99.9:
-#                         count += 1
-#                         break
-#             one['total'] = count
-#             result.append(one)
-#         now = timezone.now()
-#         problem_score = 0
-#         time_score = 100
-#         time_score_delta = timedelta(minutes=contest.time_score_wait)
-#         if contest.is_time_score:
-#             time_delta = now - contest.start_time
-#             if time_delta > time_score_delta and contest.length != time_score_delta:
-#                 time_score = 100 * ((contest.end_time - now) / (contest.length - time_score_delta))
-#         if contest.status == 0:
-#             problem_score = round(60 + 40 * time_score / 100, 2)
-#         return render(request, self.template_name,
-#                       {'result': result, 'contest': contest, 'problem_score': problem_score})
+def get_problem_score(contest):
+    now = timezone.now()
+    problem_score = 0
+    time_score = 100
+    time_score_delta = timedelta(minutes=contest.time_score_wait)
+    if contest.is_time_score:
+        time_delta = now - contest.start_time
+        if time_delta > time_score_delta and contest.length != time_score_delta:
+            time_score = 100 * ((contest.end_time - now) / (contest.length - time_score_delta))
+    if contest.status == 0:
+        problem_score = round(60 + 40 * time_score / 100, 2)
+    return problem_score
 
 class DashboardView(View):
     template_name = 'contest/dashboard.jinja2'
@@ -135,7 +95,7 @@ class DashboardView(View):
                 return redirect(reverse('contest:invitation_code', args=(contest.id,)))
             else:
                 return redirect('/reject/')
-        contest_problem = contest.contestproblem_set.all()
+        contest_problem = contest.contestproblem_set.all().select_related('contest', 'problem')
         problems = []
         for it in contest_problem:
             problems.append(it.problem)
@@ -145,16 +105,7 @@ class DashboardView(View):
             one['id'] = problem.id
             one['title'] = problem.title
             result.append(one)
-        now = timezone.now()
-        problem_score = 0
-        time_score = 100
-        time_score_delta = timedelta(minutes=contest.time_score_wait)
-        if contest.is_time_score:
-            time_delta = now - contest.start_time
-            if time_delta > time_score_delta and contest.length != time_score_delta:
-                time_score = 100 * ((contest.end_time - now) / (contest.length - time_score_delta))
-        if contest.status == 0:
-            problem_score = round(60 + 40 * time_score / 100, 2)
+        problem_score = get_problem_score(contest)
         return render(request, self.template_name,
                       {'result': result, 'contest': contest, 'problem_score': problem_score})
 
@@ -178,7 +129,19 @@ class ContestProblemView(View):
         participant_id = self.request.user.id
         if not contest_participant.filter(user_id=participant_id).exists():
             redirect('/reject/')
-        return render(request, self.template_name, {'contest': contest, 'problem': problem})
+        problem_score = get_problem_score(contest)
+        contest_problem = contest.contestproblem_set.all().select_related('contest', 'problem')
+        problems = []
+        for it in contest_problem:
+            problems.append(it.problem)
+        result = []
+        for p in problems:
+            one = dict()
+            one['id'] = p.id
+            one['title'] = p.title
+            result.append(one)
+        return render(request, self.template_name, {'contest': contest, 'problem': problem, \
+                                                    'problem_score': problem_score, 'result': result})
 
 
 class ContestMySubmissionsView(View):
@@ -197,12 +160,15 @@ class ContestMySubmissionsView(View):
         #     redirect('/reject/')
         user = self.request.user
         queryset = user.submission_set.filter(contest_id=pk)[:30].select_related('contest', 'problem', 'author'). \
-            only('pk', 'author_id', 'problem_id', 'contest_id', 'create_time', 'judge_end_time', 'status', 'status_percent')
+            only('pk', 'author_id', 'problem_id', 'contest_id', 'create_time', 'judge_end_time', 'status', \
+                 'status_percent', 'status_message')
+        problem_score = get_problem_score(contest)
         contents = {
             'flag': 1,
             'user': request.user,
             'contest': contest,
             'submission_list': queryset,
+            'problem_score': problem_score,
         }
         return render(request, self.template_name, contents)
 
@@ -218,11 +184,14 @@ class ContestSubmissionsView(View):
         if not request.user.is_superuser and contest.status < 0:
             return redirect(reverse('contest:list'))
         queryset = contest.submission_set.all()[:50].select_related('contest', 'problem', 'author'). \
-            only('pk', 'author_id', 'problem_id', 'contest_id', 'create_time', 'judge_end_time', 'status', 'status_percent')
+            only('pk', 'author_id', 'problem_id', 'contest_id', 'create_time', 'judge_end_time', 'status', \
+                 'status_percent', 'status_message')
+        problem_score = get_problem_score(contest)
         contents = {
             'flag': 0,
             'contest': contest,
             'submission_list': queryset,
+            'problem_score': problem_score,
         }
         return render(request, self.template_name, contents)
 
@@ -263,7 +232,8 @@ class StandingsView(View):
                         if contest.is_time_score:
                             time_delta = submission.create_time - contest.start_time
                             if time_delta > time_score_delta and contest.length != time_score_delta:
-                                time_score = 100 * ((contest.end_time - submission.create_time) / (contest.length - time_score_delta))
+                                time_score = 100 * ((contest.end_time - submission.create_time) / \
+                                                    (contest.length - time_score_delta))
                         now_score = submission.status_percent * 0.6 + submission.status_percent * 0.4 * time_score / 100
                         if now_score > max_score:
                             max_score = now_score
@@ -277,7 +247,9 @@ class StandingsView(View):
                     one['total'] += 1
             result.append(one)
         result.sort(key=lambda x: x['score'], reverse=True)
-        return render(request, self.template_name, {'result': result, 'contest': contest, 'user': self.request.user})
+        problem_score = get_problem_score(contest)
+        return render(request, self.template_name, {'result': result, 'contest': contest, 'user': self.request.user, \
+                                                    'problem_score': problem_score,})
 
 
 class OutputStandingsToExcelView(View):

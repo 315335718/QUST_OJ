@@ -5,25 +5,46 @@
 {% endblock %}
 
 {% block content %}
-    <div style="text-align: center; width: 80%; height:10px; margin: 0;"><h1>{{ contest.title }}</h1></div>
-    <div class="problem_info_field">
-        <h2 class="problem_title">#{{problem.id}}. {{problem.title}}</h2>
-        <p class="problem_label">题目类型：<strong>{{problem.problem_type}}</strong></p>
-        <p class="problem_label">题目难度：<strong>{{problem.level}}</strong></p>
-        <p class="problem_description">{{problem.description}}</p>
+    <div class="problem_title_field">
+        <h1>{{ contest.title[:30] }}{% if contest.title | length > 30 %}...{% endif %}</h1>
     </div>
-    <div class="problem_other_info_field">
-        <div class="problem_navbar">
-            <h4>&nbsp&nbsp→&nbsp&nbsp导航</h4>
-            <p><a href="{{ url('contest:dashboard', args=(contest.id, )) }}">总览</a></p>
-            <p><a href="{{ url('contest:my_submissions', args=(contest.id, )) }}">我的提交</a></p>
-            <p><a href="{{ url('contest:submissions', args=(contest.id, )) }}">所有提交</a></p>
+    <div class="problem_info_field">
+        <div class="problem_navbar_field">
+            <a class="problem_navbar" href="{{ url('contest:dashboard', args=(contest.id, )) }}">总览</a>
+            <a class="problem_navbar" href="{{ url('contest:my_submissions', args=(contest.id, )) }}">我的提交</a>
+            <a class="problem_navbar" href="{{ url('contest:submissions', args=(contest.id, )) }}">所有提交</a>
             {% if user.is_superuser or contest.status == 1 %}
-                <p><a href="{{ url('contest:standings', args=(contest.id, )) }}">榜单</a></p>
+                <a class="problem_navbar" href="{{ url('contest:standings', args=(contest.id, )) }}">榜单</a>
             {% endif %}
             {% if user.is_superuser %}
-                <p><a href="{{ url('contest:standings_to_excel', args=(contest.id, )) }}">导出榜单</a></p>
+                <a class="problem_navbar" href="{{ url('contest:standings_to_excel', args=(contest.id, )) }}">导出榜单</a>
             {% endif %}
+        </div>
+        <div class="problem_navbar_fun_field">
+            <a class="problem_navbar" href="">可视化分析</a>
+        </div>
+        <div style="text-align: left;">
+            <h2 class="problem_title">{{problem.id}}. {{problem.title}}</h2>
+            <p class="problem_label">题目类型：<strong>{{problem.problem_type}}</strong></p>
+            <p class="problem_label">题目难度：<strong>{{problem.level}}</strong></p>
+            <p class="problem_description">{{problem.description}}</p>
+        </div>
+    </div>
+    <div class="problem_other_info_field">
+        <div class="problem_other_info" style="font-weight: bolder">
+            <h4>&nbsp&nbsp→&nbsp&nbsp注意事项</h4>
+            <div style="width: 90%; margin-left: 5%; margin-top: 6px; margin-bottom: 6px">
+                每题最大尝试次数: <span style="color: red">{{ contest.max_try }}</span>；
+                使用每题「<span style="color: red">{% if contest.is_best_counts %} 最高成绩 {% else %} 平均成绩 {% endif %}</span>」作为最终成绩;
+                当前每道题的分数为:&nbsp<span style="color: green">{% if contest.is_time_score %}{{ problem_score }}{% else %}100{% endif %}</span>&nbsp分。<br>
+            </div>
+        </div>
+        <div style="width: 100%; height: 20px"></div>
+        <div class="problem_other_info">
+            <h4>&nbsp&nbsp→&nbsp&nbsp题目跳转</h4>
+            {% for ele in result %}
+                <p><a class="gogo" href="{{ url('contest:contest_problem', args=(contest.id, ele.id, )) }}">{{ ele.id }}. {{ ele.title[:12] }}{% if ele.title | length > 12 %}...{% endif %}</a></p>
+            {% endfor %}
         </div>
     </div>
     <div class="problem_submit_field">

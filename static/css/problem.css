@@ -1,7 +1,20 @@
-.problem_info_field {
-    width: 70%;
+.problem_title_field {
+    width: 95%;
     margin-left: 5%;
     margin-top: 3%;
+    /*border: 2px solid red;*/
+}
+
+.problem_title_field .problem_title {
+    /*border: 2px solid red;*/
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.problem_info_field {
+    width: 70%;
+    margin-top: 1%;
+    margin-left: 5%;
     margin-bottom: 0;
     margin-right: 0;
     height: auto;
@@ -13,8 +26,8 @@
 
 .problem_other_info_field {
     width: 18%;
+    margin-top: 1%;
     margin-left: 0;
-    margin-top: 3%;
     margin-right: 5%;
     margin-bottom: 0;
     height: 500px;
@@ -42,13 +55,69 @@
     float: left;
 }
 
-.problem_info_field .problem_title {
+.problem_navbar_field {
+    width: 70%;
+    margin-top: 5px;
+    text-align: left;
+    margin-bottom: 25px;
+    display:inline-block;
+    float: left;
     /*border: 2px solid red;*/
-    margin-top: 10px;
-    margin-bottom: 10px;
 }
 
-.problem_info_field .problem_label {
+.problem_navbar_field .problem_navbar {
+    margin-right: 10px;
+    text-decoration: none;
+	background-color: #617df8;
+    padding: 5px 18px;
+    border-style: solid;
+  	border-width: 2px ;
+    color: white;
+    font-size: 15px;
+    border-radius: 6px;
+}
+
+.problem_navbar_field .problem_navbar:hover {
+    color: white;
+    background-color: #4a5eba;
+    transition: all .3s ease;
+}
+
+.problem_navbar_fun_field {
+    width: 30%;
+    margin-top: 5px;
+    text-align: right;
+    margin-bottom: 25px;
+    display:inline-block;
+    float: right;
+}
+
+.problem_navbar_fun_field .problem_navbar {
+    margin-left: 10px;
+    text-decoration: none;
+	background-color: #617df8;
+    padding: 5px 18px;
+    border-style: solid;
+  	border-width: 2px ;
+    color: white;
+    font-size: 15px;
+    border-radius: 6px;
+}
+
+.problem_navbar_fun_field .problem_navbar:hover {
+    color: white;
+    background-color: #4a5eba;
+    transition: all .3s ease;
+}
+
+.problem_label_field {
+    width: 100%;
+    text-align: left;
+    display:inline-block;
+    float: left;
+}
+
+.problem_label_field .problem_label {
     /*border: 2px solid red;*/
     margin-top: 0px;
     margin-bottom: 2px;
@@ -61,8 +130,11 @@
     margin-bottom: 0px;
     text-align: left;
     font-size: 15px;
+    font-family: Monaco;
     white-space: pre-wrap;
     word-wrap: break-word;
+    display:inline-block;
+    float: left;
 }
 
 .problem_submit_field .problem_submit_label {
@@ -114,18 +186,17 @@
     transition: all .3s ease;
 }
 
-.problem_other_info_field .problem_navbar {
+.problem_other_info_field .problem_other_info {
     width: 100%;
-    margin-top: 7%;
     border-style: solid;
   	border-width: 2px ;
   	border-color: #6495ED;
 	border-radius: 5px;
-    text-align: center;
+    text-align: left;
     color: #4a5eba;
 }
 
-.problem_other_info_field .problem_navbar h4{
+.problem_other_info_field .problem_other_info h4{
     margin-top: 5px;
     margin-bottom: 1px;
     padding-bottom: 5px;
@@ -133,30 +204,28 @@
     border-bottom: 1px solid #778899;
 }
 
-.problem_other_info_field .problem_navbar p{
+.problem_other_info_field .problem_other_info p{
     height: 27px;
     margin-top: 0px;
     margin-bottom: 0px;
     padding-bottom: 0px;
     padding-top: 5px;
-    background-color: #6495ED;
+    color: white;
+    background-color: #617df8;
     border-radius: 5px;
     border-color: white;
     border-style: solid;
     border-width: 1px;
 }
 
-.problem_other_info_field .problem_navbar p:hover{
+.problem_other_info_field .problem_other_info p:hover{
     color: white;
     background-color: #4169E1;
     transition: all .3s ease;
 }
 
-.problem_other_info_field .problem_navbar a{
+.problem_other_info_field .problem_other_info .gogo {
     text-decoration: none;
-    color: white;
-}
-
-.problem_other_info_field .problem_navbar a:hover{
+    margin-left: 10px;
     color: white;
 }

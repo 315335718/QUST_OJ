@@ -132,7 +132,7 @@ class ProblemSubmissionsView(View):
         p = Problem.objects.get(id=problem_id)
         user = self.request.user
         queryset = user.submission_set.filter(problem_id=p.id)[:20].select_related('author'). \
-            only('pk', 'create_time', 'judge_end_time', 'author_id', 'status', 'status_percent')
+            only('pk', 'create_time', 'judge_end_time', 'author_id', 'status', 'status_percent', 'status_message')
         contents = {
             'user': request.user,
             'problem': p,
@@ -148,7 +148,8 @@ class AllSubmissionsView(View):
         if not self.request.user.is_authenticated:
             return HttpResponseRedirect('/')
         queryset = Submission.objects.all()[:50].select_related('problem', 'author'). \
-            only('pk', 'create_time', 'judge_end_time', 'author_id', 'problem_id', 'status', 'status_percent')
+            only('pk', 'create_time', 'judge_end_time', 'author_id', 'problem_id', 'status', \
+                 'status_percent', 'status_message')
         # queryset = Submission.objects.all()[:50] # 优化前
         contents = {
             'submission_list': queryset,

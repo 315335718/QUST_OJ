@@ -4,18 +4,45 @@
     我的提交
 {% endblock %}
 
+{% block css %}
+    <link rel="stylesheet" href="{{ static('css/tooltip.css') }}" type="text/css" />
+    <script src="{{ static('js/tooltip.js') }}"></script>
+{% endblock %}
+
 {% block content %}
-    <div style="text-align: center; width: 80%; height:10px; margin: 0;"><h1>{{ contest.title[:20] }}{% if contest.title | length > 30 %}...{% endif %}&nbsp&nbsp{% if flag == 1 %}我的{% else %}所有{% endif %}提交</h1></div>
+    <div class="problem_title_field">
+        <h1>{{ contest.title[:30] }}{% if contest.title | length > 30 %}...{% endif %}</h1>
+        <h4>
+            <span style="color: red">注意：</span>
+            (1) 每题最大尝试次数: <span style="color: red">{{ contest.max_try }}</span>；&nbsp
+            (2) 使用每题「<span style="color: red">{% if contest.is_best_counts %} 最高成绩 {% else %} 平均成绩 {% endif %}</span>」作为最终成绩；&nbsp
+            (3) 当前每道题的分数为:&nbsp<span style="color: green">{% if contest.is_time_score %}{{ problem_score }}{% else %}100{% endif %}</span>&nbsp分。
+        </h4>
+    </div>
     <div class="problem_submissions_field">
+        <div class="problem_navbar_field">
+            <a class="problem_navbar" href="{{ url('contest:dashboard', args=(contest.id, )) }}">总览</a>
+            <a class="problem_navbar" href="{{ url('contest:my_submissions', args=(contest.id, )) }}">我的提交</a>
+            <a class="problem_navbar" href="{{ url('contest:submissions', args=(contest.id, )) }}">所有提交</a>
+            {% if user.is_superuser or contest.status == 1 %}
+                <a class="problem_navbar" href="{{ url('contest:standings', args=(contest.id, )) }}">榜单</a>
+            {% endif %}
+            {% if user.is_superuser %}
+                <a class="problem_navbar" href="{{ url('contest:standings_to_excel', args=(contest.id, )) }}">导出榜单</a>
+            {% endif %}
+        </div>
+        <div class="problem_navbar_fun_field">
+            <a class="problem_navbar" href="">可视化分析</a>
+        </div>
         <table class="problem_submission_list">
             <tr>
-                <th>#</th>
+                <th class="submission_id">#</th>
                 <th class="create_and_end_time">提交时间</th>
                 <th class="create_and_end_time">结束时间</th>
                 <th>提交者</th>
                 <th>题目ID</th>
-                <th class="submission_status">评测状态</th>
-                <th>评测结果</th>
+                <th class="submission_status"><span>评测状态</span></th>
+                <th class="submission_status_percent">评测结果</th>
             </tr>
             {% for submission in submission_list %}
                 <tr>
@@ -28,19 +55,40 @@
                             无
                         {% endif %}</td>
                     <td class="submit_username">{% if flag == 1 %}{{ user.username }}{% else %}{{ submission.author.username }}{% endif %}</td>
-                    <td class="submited_problem">{{ submission.problem_id }}</td>
+                    <td class="submitted_problem">{{ submission.problem_id }}</td>
                     {% if submission.status == -3 %}
-                        <td class="submission_status" style="color: #A4CACA; font-weight: bold">提交成功</td>
+                        <td style="color: #A4CACA; font-weight: bold">
+                           <div class="pswp__preloader__icn">
+                               <div class="pswp__preloader__cut">
+                                   <div class="pswp__preloader__donut"></div>
+                               </div>
+                            </div>
+                            <span class="tip-hotspot" data-tip="{{ submission.status_message  }}">提交成功</span>
+                        </td>
                     {% elif submission.status == -2 %}
-                        <td class="submission_status" style="color: #A4CACA; font-weight: bold">队列中</td>
+                        <td style="color: #A4CACA; font-weight: bold" >
+                            <div class="pswp__preloader__icn">
+                                <div class="pswp__preloader__cut">
+                                     <div class="pswp__preloader__donut"></div>
+                                </div>
+                            </div>
+                            <span class="tip-hotspot" data-tip="{{ submission.status_message  }}">队列中</span>
+                        </td>
                     {% elif submission.status == -1 %}
-                        <td class="submission_status" style="color: #A4CACA; font-weight: bold">{{ submission.running_process }}</td>
+                        <td style="color: #A4CACA; font-weight: bold">
+                            <div class="pswp__preloader__icn">
+                               <div class="pswp__preloader__cut">
+                                   <div class="pswp__preloader__donut"></div>
+                               </div>
+                            </div>
+                            <span class="tip-hotspot" data-tip="{{ submission.status_message  }}">{{ submission.running_process }}</span>
+                        </td>
                     {% elif submission.status == 0 %}
-                        <td class="submission_status" style="color: #009A08; font-weight: bold">评测完成</td>
+                        <td style="color: #009A08; font-weight: bold"><span class="tip-hotspot" data-tip="{{ submission.status_message  }} ">评测完成</span></td>
                     {% elif submission.status == 2 %}
-                        <td class="submission_status" style="color: #FF8C00; font-weight: bold">编译错误</td>
+                        <td style="color: #FF8C00; font-weight: bold"><span class="tip-hotspot" data-tip="{{ submission.status_message  }}">编译错误</span></td>
                     {% elif submission.status == 3 %}
-                        <td class="submission_status" style="color: #FF0A32; font-weight: bold">系统错误</td>
+                        <td style="color: #FF0A32; font-weight: bold"><span class="tip-hotspot" data-tip="{{ submission.status_message  }}">系统错误</span></td>
                     {% endif %}
                     {% if submission.status_percent == 100 %}
                         <td style="color: #009A08; font-weight: bolder">{{ submission.status_percent }}</td>
@@ -52,19 +100,11 @@
                 </tr>
             {% endfor %}
         </table>
-    </div>
-    <div class="problem_other_info_field">
-        <div class="problem_navbar">
-            <p><a href="{{ url('contest:dashboard', args=(contest.id, )) }}">总览</a></p>
-            <p><a href="{{ url('contest:my_submissions', args=(contest.id, )) }}">我的提交</a></p>
-            <p><a href="{{ url('contest:submissions', args=(contest.id, )) }}">所有提交</a></p>
-            {% if user.is_superuser or contest.status == 1 %}
-                <p><a href="{{ url('contest:standings', args=(contest.id, )) }}">榜单</a></p>
-            {% endif %}
-            {% if user.is_superuser %}
-                <p><a href="{{ url('contest:standings_to_excel', args=(contest.id, )) }}">导出榜单</a></p>
-            {% endif %}
-        </div>
+        <input type="hidden" id="submissions" value="{{ url('submission:get_all_submission') }}">
     </div>
     <div style="width: 100%; height: 0px; margin: 0; display:inline-block;"></div>
+{% endblock %}
+
+{% block script %}
+    <script src="{{ static('js/submissions.js') }}"></script>
 {% endblock %}

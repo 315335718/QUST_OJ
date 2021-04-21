@@ -1,7 +1,7 @@
 .problem_submissions_field {
-    width: 70%;
+    width: 90%;
     margin-left: 5%;
-    margin-top: 4.3%;
+    margin-top: 1%;
     margin-bottom: 0;
     margin-right: 0;
     height: auto;
@@ -43,30 +43,102 @@
 	vertical-align: middle;
 }
 
+.problem_submission_list .submission_id {
+    width: 10%
+}
+
 .problem_submission_list .create_and_end_time {
-    width: 160px;
+    width: 18%;
     table-layout: fixed;
     white-space: nowrap;
 }
 
 .problem_submission_list .submit_username {
     color: #4183c4;
-    width: 100px;
+    width: 15%;
     table-layout: fixed;
     word-break: break-all;
 }
 
-.problem_submission_list .submited_problem {
+.problem_submission_list .submitted_problem {
+    width: 6%;
     color: #4183c4;
 }
 
-.problem_submission_list .submited_problem a {
+.problem_submission_list .submitted_problem a {
     text-decoration-line: none;
     color: #4183c4;
 }
 
 .problem_submission_list .submission_status {
-    width: 170px;
+    /*width: 250px;*/
     table-layout: fixed;
     word-break: break-all;
+}
+
+.problem_submission_list .submission_status_percent {
+    width: 8%;
+}
+
+/*加载中*/
+.pswp__preloader__icn {
+    display: inline-block;
+    opacity:0.75;
+    width: 12px;
+    height: 12px;
+    margin-right: 10px;
+    -webkit-animation: clockwise 500ms linear infinite;
+    animation: clockwise 500ms linear infinite;
+    border-color: #009A08;
+}
+
+.pswp__preloader__cut {
+    position: relative;
+    width: 6px;
+    height: 12px;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-color: #009A08;
+}
+
+.pswp__preloader__donut {
+    box-sizing: border-box;
+    width: 12px;
+    height: 12px;
+    border: 1px solid #000;
+    border-radius: 50%;
+    border-left-color: transparent;
+    border-bottom-color: transparent;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: none;
+    border-color: #009A08;
+    margin:0;
+    -webkit-animation: donut-rotate 1000ms cubic-bezier(.4,0,.22,1) infinite;
+    animation: donut-rotate 1000ms cubic-bezier(.4,0,.22,1) infinite;
+}
+
+@-webkit-keyframes clockwise {
+    0% { -webkit-transform: rotate(0deg) }
+    100% { -webkit-transform: rotate(360deg) }
+}
+
+@keyframes clockwise {
+    0% { transform: rotate(0deg) }
+    100% { transform: rotate(360deg) }
+}
+
+@-webkit-keyframes donut-rotate {
+    0% { -webkit-transform: rotate(0) }
+    50% { -webkit-transform: rotate(-140deg) }
+    100% { -webkit-transform: rotate(0) }
+}
+
+@keyframes donut-rotate {
+    0% { transform: rotate(0) }
+    50% { transform: rotate(-140deg) }
+    100% { transform: rotate(0) }
 }

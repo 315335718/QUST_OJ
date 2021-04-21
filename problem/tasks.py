@@ -16,9 +16,9 @@ def create_submission(problem, author: User, code, contest=None, status=Submissi
     if author.submission_set.exists() and (
             datetime.now() - author.submission_set.first().create_time).total_seconds() < 5:
         raise ValueError("5 秒内只能提交一次。")
-    if contest:
-        if contest.submission_set.filter(author_id=author.id, problem_id=problem.id, code__exact=code).exists():
-            raise ValueError("你之前交过完全一样的代码。")
+    # if contest:
+    #     if contest.submission_set.filter(author_id=author.id, problem_id=problem.id, code__exact=code).exists():
+    #         raise ValueError("你之前交过完全一样的代码。")
     problem.total_count += 1
     problem.save(update_fields=['total_count'])
     return Submission.objects.create(code=code, author=author, problem=problem, contest=contest,
@@ -67,13 +67,16 @@ def judge_submission_on_problem(submission, callback=None, **kwargs):
 
             submission.judge_server = data.get('server', 0)
             # 暂时进行更新
-            submission.save(update_fields=['status_message', 'status_detail', 'status',
-                                           'status_percent', 'judge_server', 'running_process'])
+            submission.judge_end_time = judge_time
+            message = data.get('status_message')
+            if message is not None:
+                submission.status_message = message
+            else:
+                submission.status_message = " "
+            submission.save(update_fields=['status_message', 'status_detail', 'status', 'judge_end_time',
+                                           'status_percent', 'judge_server', 'running_process', 'status_message'])
 
             if SubmissionStatus.is_judged(data.get('verdict')):
-                submission.judge_end_time = judge_time
-                submission.status_message = data.get('status_message')
-                submission.save(update_fields=['judge_end_time', 'status_message'])
                 if submission.status_percent > 99.9:
                     problem.ac_count += 1
                     problem.save(update_fields=['ac_count'])

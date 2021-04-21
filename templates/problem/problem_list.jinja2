@@ -39,7 +39,7 @@
         {% for problem in problem_list  %}
 			<tr class="problem" >
 				<td class="number">{{ problem.id }}</td>
-				<td class="td_title" onclick="location.href='{{ url('problem:detail', args=(problem.id, )) }}';">{{problem.title[:36]}}{% if problem.title | length > 20 %}...{% endif %}</td>
+				<td class="td_title" onclick="location.href='{{ url('problem:detail', args=(problem.id, )) }}';">{{ problem.title[:36] }}{% if problem.title | length > 20 %}...{% endif %}</td>
 				<td >{{ problem.problem_type }}</td>
 				<td>{{ problem.level }}</td>
                 <td style="font-weight: bold;">{{ problem.ac_count }}&nbsp&nbsp/&nbsp&nbsp{{ problem.total_count }}</td>
