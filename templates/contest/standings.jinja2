@@ -7,12 +7,6 @@
 {% block content %}
     <div class="problem_title_field">
         <h1>{{ contest.title[:30] }}{% if contest.title | length > 30 %}...{% endif %}</h1>
-        <h4>
-            <span style="color: red">注意：</span>
-            (1) 每题最大尝试次数: <span style="color: red">{{ contest.max_try }}</span>；&nbsp
-            (2) 使用每题「<span style="color: red">{% if contest.is_best_counts %} 最高成绩 {% else %} 平均成绩 {% endif %}</span>」作为最终成绩；&nbsp
-            (3) 当前每道题的分数为:&nbsp<span style="color: green">{% if contest.is_time_score %}{{ problem_score }}{% else %}100{% endif %}</span>&nbsp分。
-        </h4>
     </div>
     <div class="problem_submissions_field">
         <div class="problem_navbar_field">
