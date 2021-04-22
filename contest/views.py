@@ -352,7 +352,7 @@ class SubmissionPeakView(View):
         '''
         start_time = contest.start_time
         length1 = contest.length.seconds
-        step1 = 5
+        step1 = 10
         n1 = int(length1 / step1)
         queryset = contest.submission_set.all().select_related('contest', 'problem', 'author').order_by('create_time')
         end_time = contest.end_time
