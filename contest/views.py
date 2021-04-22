@@ -337,3 +337,35 @@ class OutputStandingsToExcelView(View):
                 return response
             except Exception:
                 raise Http404
+
+
+class SubmissionPeakView(View):
+    template_name = 'contest/submission_peak.jinja2'
+    def get(self, request, *args, **kwargs):
+        pk = self.kwargs['pk']
+        contest = Contest.objects.get(id=pk)
+        start_time = contest.start_time
+        length1 = contest.length.seconds
+        step1 = 15
+        n1 = int(length1 / step1)
+        queryset = contest.submission_set.all().select_related('contest', 'problem', 'author').order_by('create_time')
+        end_time = contest.end_time
+        cur_time = start_time
+        times = []
+        delta = timedelta(seconds=step1)
+        p = 0
+        queryset_len = len(queryset)
+        while p < queryset_len and queryset[p].create_time < cur_time:
+            p += 1
+        while cur_time <= end_time:
+            if p < queryset_len and cur_time <= queryset[p].create_time <= cur_time + delta:
+                cnt = 0
+                while p < queryset_len and cur_time <= queryset[p].create_time <= cur_time + delta:
+                    cnt += 1
+                    p += 1
+                times.append(cnt)
+            else:
+                times.append(0)
+            cur_time += delta
+        return render(request, self.template_name, {'times': times, 'contest': contest, 'n1': n1, 'length1': length1, \
+                                                    'step1': step1, 'start_time': start_time})

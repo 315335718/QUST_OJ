@@ -59,7 +59,7 @@ body{
 	transition: all .3s ease;
 }
 
-#main{
+#home_main{
 	width: 100%;
 	height: 700px;
 	background-image: url(/static/img/home.jpg) ;

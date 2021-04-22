@@ -1,0 +1,112 @@
+{% extends 'base.jinja2' %}
+
+{% block title %}
+    提交数量分析
+{% endblock %}
+
+{% block content %}
+    <div class="problem_title_field">
+        <h1>{{ contest.title[:30] }}{% if contest.title | length > 30 %}...{% endif %}</h1>
+    </div>
+    <div class="problem_submissions_field">
+        <div class="problem_navbar_field">
+            <a class="problem_navbar" href="{{ url('contest:dashboard', args=(contest.id, )) }}">总览</a>
+            <a class="problem_navbar" href="{{ url('contest:my_submissions', args=(contest.id, )) }}">我的提交</a>
+            <a class="problem_navbar" href="{{ url('contest:submissions', args=(contest.id, )) }}">所有提交</a>
+            {% if user.is_superuser or contest.status == 1 %}
+                <a class="problem_navbar" href="{{ url('contest:standings', args=(contest.id, )) }}">榜单</a>
+            {% endif %}
+            {% if user.is_superuser %}
+                <a class="problem_navbar" href="{{ url('contest:standings_to_excel', args=(contest.id, )) }}">导出榜单</a>
+            {% endif %}
+        </div>
+        <div class="problem_navbar_fun_field">
+            <a class="problem_navbar" href="">可视化分析</a>
+        </div>
+        <div style="width: 100%; margin-top: 80px; text-align: center">
+            <div id='submission_peak_picture' style="width: 100%;height:500px;"></div>
+
+        </div>
+
+    </div>
+    <div style="width: 100%; height: 0px; margin: 0; display:inline-block;"></div>
+    {% block script %}
+        <script src="{{ static('js/echarts.min.js') }}"></script>
+        <script>
+            //基于准备好的DOM，初始化echarts实例
+            var myChart = echarts.init(document.getElementById('submission_peak_picture'));
+            var base = new Date({{start_time.year}}, {{start_time.month}}, {{start_time.day}}, {{start_time.hour}}, {{start_time.minute}}, 0);
+            {#var oneDay = 24 * 3600 * 1000;#}
+            var onemin = {{ step1 }} * 1000;  //控制一个单位长度,
+            base -= 0
+            var date = [];
+            var data = {{ times }};
+            var n1 = {{ n1 }};
+            for (var i = 1; i <= n1; i++) {
+                var now = new Date(base += onemin);
+                date.push([now.getHours()] + '时' + [now.getMinutes()] + '分' + [now.getSeconds()] + '\'');
+            }
+            option = {
+                tooltip: {
+                    trigger: 'axis',
+                    position: function (pt) {
+                        return [pt[0], '10%'];
+                    }
+                },
+                title: {
+                    left: 'center',
+                    text: '提交流量峰值图',
+                },
+                toolbox: {
+                    feature: {
+                        dataZoom: {
+                            yAxisIndex: 'none'
+                        },
+                        restore: {},
+                        saveAsImage: {}
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: date
+                },
+                yAxis: {
+                    type: 'value',
+                    boundaryGap: [0, '0%']
+                },
+                dataZoom: [{
+                    type: 'inside',
+                    start: 0,
+                    end: 100
+                }, {
+                    start: 0,
+                    end: 10
+                }],
+                series: [
+                    {
+                        name: '模拟数据',
+                        type: 'line',
+                        symbol: 'none',
+                        sampling: 'lttb',
+                        itemStyle: {
+                            color: 'rgb(255, 70, 131)'
+                        },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                offset: 0,
+                                color: 'rgb(255, 158, 68)'
+                            }, {
+                                offset: 1,
+                                color: 'rgb(255, 70, 131)'
+                            }])
+                        },
+                        data: data
+                    }
+                ]
+            };
+            {#//使用刚指定的配置项和数据显示图表#}
+            myChart.setOption(option);
+        </script>
+    {% endblock %}
+{% endblock %}
