@@ -4,6 +4,11 @@
     题目
 {% endblock %}
 
+{% block css %}
+    <script src="{{ static('js/codemirror.js') }}"></script>
+    <script src="{{ static('js/sql.js') }}"></script>
+{% endblock %}
+
 {% block content %}
     <div class="problem_title_field">
         <h1>{{ contest.title[:30] }}{% if contest.title | length > 30 %}...{% endif %}</h1>
@@ -21,7 +26,7 @@
             {% endif %}
         </div>
         <div class="problem_navbar_fun_field">
-            <a class="problem_navbar" href="">可视化分析</a>
+            <a class="problem_navbar" href="{{ url('contest:submission_peak', args=(contest.id, )) }}">可视化分析</a>
         </div>
         <div style="text-align: left;">
             <h2 class="problem_title">{{problem.id}}. {{problem.title}}</h2>
@@ -50,9 +55,38 @@
     <div class="problem_submit_field">
         <p class="problem_submit_label"><strong>源代码：</strong></p>
         <form action="{{ url('problem:submit', args=(problem.id, contest.id, )) }}" method="post">{% csrf_token %}
-            <textarea class="code_textarea" name="code"></textarea>
+            <textarea id="code_textarea1" name="code"></textarea>
             <button name="submit" class="problem_submit_button"> 提交 </button>
         </form>
     </div>
     <div class="problem_bottom_field"></div>
+{% endblock %}
+
+{% block script %}
+{#    <script src="{{ static('js/codemirror.js') }}"></script>#}
+{#    <script src="{{ static('js/sql.js') }}"></script>#}
+    <script>
+        window.onload = function () {
+            var mime = 'text/x-mariadb';
+            if (window.location.href.indexOf('mime=') > -1) {
+                mime = window.location.href.substr(window.location.href.indexOf('mime=') + 5);
+            }
+            window.editor = CodeMirror.fromTextArea(document.getElementById('code_textarea1'), {
+                mode: mime,
+                indentWithTabs: true,
+                smartIndent: true,
+                lineNumbers: true,
+                matchBrackets: true,
+                autofocus: true,
+                extraKeys: {"Ctrl-Space": "autocomplete"},
+                hintOptions: {
+                    tables: {
+                        users: ["name", "score", "birthDate"],
+                        countries: ["name", "population", "size"]
+                    }
+                }
+            });
+            $(".CodeMirror").css("background", "rgb(209 203 203 / 8%)")
+        };
+    </script>
 {% endblock %}
