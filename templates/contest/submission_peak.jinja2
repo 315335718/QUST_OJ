@@ -347,13 +347,12 @@
         </script>
 
         {# 代码长度散点图 #}
-        <script>
+        <script type="text/javascript">
             // 基于准备好的dom，初始化echarts实例
             var myChart4 = echarts.init(document.getElementById('code_length_scatter_chart'));
-            var code_length ={{ pace_length|safe }};
-            var problems ={{ scatter_chart_problem_id|safe }};
-            var data = {{ code_length_data|safe }};
-
+            var problems ={{ scatter_chart_problem_id | safe }};
+            var data = {{ code_length_data | safe }};
+            var log = 0;
             option = {
                 tooltip: {
                     position: 'top'
@@ -362,7 +361,6 @@
                 singleAxis: [],
                 series: []
             };
-
             problems.forEach(function (day, idx) {
                 option.title.push({
                     textBaseline: 'middle',
@@ -373,12 +371,11 @@
                     left: 60,
                     type: 'category',
                     boundaryGap: false,
-                    data: code_length,
                     top: (idx * 100 / 7 + 5) + '%',
                     height: (100 / 7 - 10) - 2 + '%',
-                    axisLabel: {
-                        interval: 5
-                    }
+                    //axisLabel: {
+                    //    interval: 1
+                    //}
                 });
                 option.series.push({
                     singleAxisIndex: idx,
@@ -397,5 +394,6 @@
 
             myChart4.setOption(option);
         </script>
+
     {% endblock %}
 {% endblock %}

@@ -64,3 +64,10 @@ class SubmissionsView(APIView):
         submissions = Submission.objects.all()
         serializer = SubmissionSerializer(submissions, many=True)
         return Response(serializer.data)
+
+
+class TestView2(APIView):
+    def get(self, request, *args, **kwargs):
+        print(request.data)
+        return Response({"status": True})
+

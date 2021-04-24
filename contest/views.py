@@ -391,8 +391,13 @@ class SubmissionPeakView(View):
         all_count = max_id * [0]
         sum_score = max_id * [0]
         pro_name = max_id * [0]
-        max_code_length = 0
         ok_submissions = []
+        code_length = []
+        for i in range(max_id):
+            curr = dict()
+            curr[-1] = 0
+            code_length.append(curr)
+        # code_length = [dict()] * max_id  # 直接用空字典不行，需要用一个有值的字典
         for i in range(max_id + 1):
             ok_submissions.append([])
         for s in queryset:
@@ -401,8 +406,11 @@ class SubmissionPeakView(View):
             if s.status_score >= 99.99:
                 correct_count[cur_id] += 1
                 cur_length = len(s.code)
-                max_code_length = max(max_code_length, cur_length)
-                ok_submissions[cur_id].append(cur_length)  #满分的加到每个题目的submission
+                # 统计代码长度数量
+                if cur_length not in code_length[cur_id]:
+                    code_length[cur_id][cur_length] = 0
+                code_length[cur_id][cur_length] += 1
+                ok_submissions[cur_id].append(cur_length)  # 满分的加到每个题目的submission
             elif s.status_score > 0:
                 has_correct_count[cur_id] += 1
             else:
@@ -436,7 +444,7 @@ class SubmissionPeakView(View):
             max_submission_times = max(max_submission_times, all_count[i])
             if all_count[i] != 0:
                 average_score.append(round(sum_score[i] / all_count[i], 3))
-                correct_radio.append(round(correct_count[i] / all_count[i], 4) * 100)
+                correct_radio.append(round(correct_count[i] / all_count[i] * 100, 4))
             else:
                 average_score.append(0)
                 correct_radio.append(0)
@@ -449,6 +457,8 @@ class SubmissionPeakView(View):
             s_len = len(ok_submissions[i])
             k = 0
             j = 0
+            max_code_len_cnt = max(code_length[i].values())
+            min_code_len_cnt = min(code_length[i].values())
             while j < s_len:
                 while k < ok_submissions[i][j]:
                     k += 1
@@ -460,10 +470,9 @@ class SubmissionPeakView(View):
                 now_data.append(scatter_chart_id)
                 now_data.append(k)
                 if all_count[i] != 0:
-                    weight_rate = len_cnt / all_count[i]
                     low_size = 18
                     size_len = 48
-                    size = low_size + weight_rate * size_len
+                    size = int(low_size + (len_cnt - min_code_len_cnt) / (max_code_len_cnt - min_code_len_cnt) * size_len)
                     now_data.append(size)
                 else:
                     now_data.append(0)
@@ -485,10 +494,6 @@ class SubmissionPeakView(View):
         '''
         代码长度单轴散点图
         '''
-        pace_length = []
-        max_code_length += 20
-        for x in range(max_code_length):
-            pace_length.append(x)
         return render(request, self.template_name, {'times': times,
                                                     'contest': contest,
                                                     'n1': n1,
@@ -502,7 +507,6 @@ class SubmissionPeakView(View):
                                                     'problem_name': problem_name,
                                                     'max_submission_times': max_submission_times,
                                                     'all_pie_chart': all_pie_chart,
-                                                    'pace_length': pace_length,
                                                     'code_length_data': code_length_data,
                                                     'scatter_chart_problem_id': scatter_chart_problem_id
                                                     })
