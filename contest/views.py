@@ -205,7 +205,7 @@ class StandingsView(View):
             return HttpResponseRedirect('/')
         pk = self.kwargs['pk']
         contest = Contest.objects.get(id=pk)
-        if not request.user.is_superuser and (contest.status != 1):
+        if not request.user.is_superuser and contest.status != 1:
             return redirect(reverse('contest:list'))
         contest_participant = contest.contestparticipant_set.all().select_related('contest', 'user')
         contest_problem = contest.contestproblem_set.all().select_related('contest', 'problem')
@@ -260,7 +260,7 @@ class OutputStandingsToExcelView(View):
             return HttpResponseRedirect('/')
         pk = self.kwargs['pk']
         contest = Contest.objects.get(id=pk)
-        if not request.user.is_superuser and contest.status < 0:
+        if not request.user.is_superuser and contest.status != 1:
             return redirect(reverse('contest:list'))
         contest_participant = contest.contestparticipant_set.all()
         contest_problem = contest.contestproblem_set.all().select_related('contest', 'problem')
@@ -347,6 +347,8 @@ class SubmissionPeakView(View):
     def get(self, request, *args, **kwargs):
         pk = self.kwargs['pk']
         contest = Contest.objects.get(id=pk)
+        if not request.user.is_superuser and contest.status != 1:
+            return redirect(reverse('contest:list'))
         '''
         流量峰值图数据处理
         '''

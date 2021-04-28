@@ -40,7 +40,9 @@
             {% endif %}
         </div>
         <div class="problem_navbar_fun_field">
-            <a class="problem_navbar" href="{{ url('contest:submission_peak', args=(contest.id, )) }}">可视化分析</a>
+            {% if user.is_superuser or contest.status == 1 %}
+                <a class="problem_navbar" href="{{ url('contest:submission_peak', args=(contest.id, )) }}">可视化分析</a>
+            {% endif %}
         </div>
         <table class="problem_submission_list">
             <tr>
