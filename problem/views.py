@@ -150,7 +150,6 @@ class AllSubmissionsView(View):
         queryset = Submission.objects.all()[:50].select_related('problem', 'author'). \
             only('pk', 'create_time', 'judge_end_time', 'author_id', 'problem_id', 'status', \
                  'status_percent', 'status_message')
-        # queryset = Submission.objects.all()[:50] # 优化前
         contents = {
             'submission_list': queryset,
         }

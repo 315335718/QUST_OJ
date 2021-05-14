@@ -7,6 +7,7 @@ from account.models import User
 from contest.models import Contest
 from submission.utils import SubmissionStatus, STATUS_CHOICE
 
+
 class Submission(models.Model):
     code = models.TextField(blank=True)
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
