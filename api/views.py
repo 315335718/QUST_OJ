@@ -38,17 +38,18 @@ class TestView(APIView):
 class ProblemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Problem
-        fields = ("id", "title", "description", "checker", "problem_type", "level", "ac_count", "total_count")
+        fields = ("id", "title", "description", "problem_type", "level", "ac_count", "total_count")
 
 
-class ProblemView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request):
-        # problem = Problem.objects.filter(visible=True)
-        problem = Problem.objects.all()
-        serializer = ProblemSerializer(problem, many=True)
-        return Response(serializer.data)
+# class ProblemListView(APIView):
+#     # permission_classes = (IsAuthenticated,)
+#     def get(self, request):
+#         problem_list = Problem.objects.all().only('id', 'title', 'description', 'problem_type', 'level', 'ac_count', \
+#                                                   'total_count').order_by('id')
+#         # if not is_admin_or_root(self.request.user):
+#         #     queryset = queryset.filter(visible=True)
+#         serializer = ProblemSerializer(problem_list, many=True)
+#         return Response(serializer.data)
 
 
 class SubmissionSerializer(serializers.ModelSerializer):
@@ -71,3 +72,23 @@ class TestView2(APIView):
         print(request.data)
         return Response({"status": True})
 
+
+class ProblemListView(APIView):
+    # permission_classes = (IsAuthenticated,)
+    def get(self, request):
+        print(request.GET.get('mname', 'world'))
+        problem_list = Problem.objects.all().only('id', 'title', 'description', 'problem_type', 'level', 'ac_count', \
+                                                  'total_count').order_by('id')
+        # if not is_admin_or_root(self.request.user):
+        #     queryset = queryset.filter(visible=True)
+        serializer = ProblemSerializer(problem_list, many=True)
+        return Response({'problem_list': serializer.data})
+
+
+class ProblemView(APIView):
+    # permission_classes = (IsAuthenticated,)
+    def get(self, request):
+        id = request.GET.get('pid', 1)
+        problem = Problem.objects.get(pk=id)
+        serializer = ProblemSerializer(problem)
+        return Response({'problem': serializer.data})
