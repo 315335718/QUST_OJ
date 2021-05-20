@@ -1,14 +1,21 @@
+import requests
+import time
+import random
+
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
+from django.contrib.auth.hashers import make_password
 from django.views import View
 # from django.http import HttpResponse
 
+from account.models import User
 from problem.models import Problem
 from submission.models import Submission
+from QUST_OJ.settings import WX_APP_ID, WX_APP_SECRET
 
 
 # class HelloView(View):
@@ -73,22 +80,41 @@ class TestView2(APIView):
         return Response({"status": True})
 
 
-class ProblemListView(APIView):
-    # permission_classes = (IsAuthenticated,)
-    def get(self, request):
-        print(request.GET.get('mname', 'world'))
-        problem_list = Problem.objects.all().only('id', 'title', 'description', 'problem_type', 'level', 'ac_count', \
-                                                  'total_count').order_by('id')
-        # if not is_admin_or_root(self.request.user):
-        #     queryset = queryset.filter(visible=True)
-        serializer = ProblemSerializer(problem_list, many=True)
-        return Response({'problem_list': serializer.data})
+def get_or_create_username_and_id(openid):
+    if User.objects.filter(wx_openid=openid).exists():
+        user = User.objects.get(wx_openid=openid)
+        return user.username, user.id
+    else:
+        ticks = int(time.time())
+        random_str = str(ticks) + str(random.randint(1, 100)) + str(random.randint(1, 100))
+        username = 'wexin_' + random_str
+        password = make_password(openid)
+        fake_email = random_str + '@' + 'qq.com'
+        print(username)
+        user = User.objects.create(username=username, password=password, email=fake_email, wx_openid=openid)
+        return user.username, user.id
 
 
-class ProblemView(APIView):
-    # permission_classes = (IsAuthenticated,)
-    def get(self, request):
-        id = request.GET.get('pid', 1)
-        problem = Problem.objects.get(pk=id)
-        serializer = ProblemSerializer(problem)
-        return Response({'problem': serializer.data})
+class WxLoginView(APIView):
+    def post(self, request):
+        jscode = request.POST.get('code')
+        url = 'https://api.weixin.qq.com/sns/jscode2session'
+        url = url + "?appid=" + WX_APP_ID + "&secret=" + WX_APP_SECRET + "&js_code=" + jscode + "&grant_type=authorization_code"
+        res = requests.get(url).json()
+        if 'errcode' in res.keys():
+            return Response({'flag': 0})
+        openid = res['openid']
+        username, user_id = get_or_create_username_and_id(openid)
+        data = {
+            'username': username,
+            'password': openid,
+        }
+        res = requests.post('http://127.0.0.1:8000/api/token/', data=data)
+        token = res.json()
+        contents = {
+            'flag': 1,
+            'token': token,
+            'user_id': user_id,
+        }
+        print(contents)
+        return Response(contents)

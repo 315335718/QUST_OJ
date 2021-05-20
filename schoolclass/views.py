@@ -1,4 +1,3 @@
-import xlrd
 import time
 import random
 import pandas

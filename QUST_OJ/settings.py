@@ -209,3 +209,6 @@ Q_CLUSTER = {
     'django_redis': 'default',
     'label': 'WARNING',  # 用于Django Admin页面的标签。
 }
+
+WX_APP_ID = 'wxfc22aa3c3d842895'
+WX_APP_SECRET = 'cf9649fff7e0ab7c2510125c21d81585'
