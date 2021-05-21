@@ -8,6 +8,7 @@ from rest_framework_simplejwt.views import (
 from api.views import TestView, WxLoginView, SubmissionsView, TestView2
 import api.problem.views as problem
 import api.submission.views as submission
+import api.comment.views as comment
 
 urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -23,4 +24,9 @@ urlpatterns = [
     path('my_submissions/', submission.MySubmissionsView.as_view(), name='my_submissions'),
 
     path('wx_login/', WxLoginView.as_view(), name='wx_login'),
+]
+
+urlpatterns += [
+    path('artical_creat/', comment.creat_articalView.as_view(), name='creat_articalView'),
+    path('artical_list/', comment.list_articalView.as_view(), name='list_articalView'),
 ]

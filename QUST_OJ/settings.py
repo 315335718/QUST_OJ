@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'dispatcher',
     'contest',
     'api',
+    'comment',
 
     # third
     'django_jinja',
