@@ -44,11 +44,6 @@ class ProblemView(APIView):
 
 class ProblemSubmitView(APIView):
     # permission_classes = (IsAuthenticated,)
-    def get(self, request):
-        id = request.GET.get('pid', 1)
-        problem = Problem.objects.get(pk=id)
-        serializer = ProblemSerializer(problem)
-        return Response({'problem': serializer.data})
 
     def post(self, request):
         try:
