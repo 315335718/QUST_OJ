@@ -12,6 +12,13 @@ class Article(models.Model):
     update_time = models.DateTimeField(auto_now=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    class Meta:
+        ordering = ['-pk']
+        verbose_name_plural = '帖子'
+
+    def __str__(self):
+        return '%d. %s' % (self.pk, self.title)
+
 
 class Comment(models.Model):
     description = models.TextField("评论内容")
@@ -19,3 +26,10 @@ class Comment(models.Model):
     to_comment = models.IntegerField(default=0)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ['-pk']
+        verbose_name_plural = '评论'
+
+    def __str__(self):
+        return '%d. -> %d' % (self.pk, self.to_comment)
