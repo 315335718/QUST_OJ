@@ -8,10 +8,10 @@ from comment.models import Article
 
 class creat_articalView(APIView):
     def post(self, request):
-        title = request.GET.get('title',1)
-        des = request.GET.get('html',1)
-        text = request.GET.get('text', 1)
-        userid = request.GET.get('user_id',1)
+        title = request.POST.get('title',1)
+        des = request.POST.get('html',1)
+        text = request.POST.get('text', 1)
+        userid = request.POST.get('user_id',1)
         Article.objects.create(title=title,description=des,author_id=userid,description_text=text)
         return Response({"status": True})
 
