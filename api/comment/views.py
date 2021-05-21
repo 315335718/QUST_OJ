@@ -7,7 +7,7 @@ from comment.models import Article
 
 
 class creat_articalView(APIView):
-    def get(self, request):
+    def post(self, request):
         title = request.GET.get('title',1)
         des = request.GET.get('html',1)
         text = request.GET.get('text', 1)
