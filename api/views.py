@@ -86,7 +86,7 @@ def get_or_create_username_and_id(openid):
         return user.username, user.id
     else:
         ticks = int(time.time())
-        random_str = str(ticks) + str(random.randint(1, 100)) + chr(ord('a') + random.randint(0, 25))
+        random_str = str(ticks) + chr(ord('a') + random.randint(0, 25)) + chr(ord('a') + random.randint(0, 25))
         username = 'wexin_' + random_str
         password = make_password(openid)
         fake_email = random_str + '@' + 'qq.com'

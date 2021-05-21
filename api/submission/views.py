@@ -16,10 +16,12 @@ from submission.models import Submission
 from submission.utils import SubmissionStatus
 from problem.tasks import judge_submission_on_problem
 
+
 class ProblemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Problem
         fields = ('id', 'title')
+
 
 class SubmissionSerializer(serializers.ModelSerializer):
     problem = ProblemSerializer()

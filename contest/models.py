@@ -62,6 +62,7 @@ class Contest(models.Model):
 
     class Meta:
         ordering = ['-pk']
+        verbose_name_plural = '测试'
 
     @property
     def status(self):
@@ -132,6 +133,7 @@ class ContestProblem(models.Model):
     class Meta:
         unique_together = ('problem', 'contest')
         ordering = ['identifier']
+        verbose_name_plural = '测试_问题'
 
     @property
     def user_ratio(self):
@@ -200,3 +202,4 @@ class ContestParticipant(models.Model):
     class Meta:
         unique_together = ["user", "contest"]
         ordering = ("-is_confirmed", "-score")
+        verbose_name_plural = '测试_用户'
