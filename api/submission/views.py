@@ -28,7 +28,7 @@ class SubmissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submission
         fields = ('id', 'code', 'create_time', 'judge_end_time', 'status', 'status_percent', 'status_message', \
-                  'author', 'problem', 'contest')
+                  'running_process', 'author', 'problem', 'contest')
 
 
 class MySubmissionsView(APIView):
