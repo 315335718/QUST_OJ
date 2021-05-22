@@ -44,14 +44,12 @@ class ProblemView(APIView):
 
 class ProblemSubmitView(APIView):
     # permission_classes = (IsAuthenticated,)
-
     def post(self, request):
         try:
             user_id = request.POST.get('user_id', 0)
             cid = request.POST.get('cid', 0)
             pid = request.POST.get('pid', 0)
             code = request.POST.get('code', '')
-            print(user_id, cid, pid, code)
             if int(user_id) == 0 or int(pid) == 0:
                 return Response({'flag': 0, 'message': '检查是否登录或网络连接是否正常'})  # 检查是否未登录
             author = User.objects.get(pk=user_id)
@@ -82,7 +80,7 @@ class ProblemSubmitView(APIView):
                                                    visible=True)
             async_task(judge_submission_on_problem, submission)
             if contest is not None:
-                return Response({'flag': 2, 'message': '正常提交'})
+                return Response({'flag': 1, 'message': '正常提交'})
             else:
                 return Response({'flag': 1, 'message': '正常提交'})
         except Exception as e:
