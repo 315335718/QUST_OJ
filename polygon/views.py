@@ -289,31 +289,28 @@ class ContestProblemView(PolygonContestMixin, TemplateView):
 
 def reorder_contest_problem_identifiers(contest: Contest, orders=None):
     with transaction.atomic():
-        problems = list(contest.contestproblem_set.select_for_update().order_by('identifier').all())
+        problems = list(contest.contestproblem_set.select_for_update().order_by('problem_identifier').all())
         if orders:
             problems.sort(key=lambda x: orders[x.id])
-        if len(problems) > 26:
-            for index, problem in enumerate(problems, start=1):
-                problem.identifier = str(1000 + index)
-                problem.save(update_fields=['identifier'])
-        else:
-            for index, problem in enumerate(problems, start=0):
-                problem.identifier = chr(ord('A') + index)
-                problem.save(update_fields=['identifier'])
+        for index, problem in enumerate(problems, start=1):
+            problem.problem_identifier = index
+            problem.save(update_fields=['problem_identifier'])
 
 
 class ContestAddProblemView(PolygonContestMixin, View):
     def post(self, request, *args, **kwargs):
         def get_next_identifier(identifiers):
-            from collections import deque
-            q = deque()
-            q.append('')
-            while q:
-                u = q.popleft()
-                if u and u not in identifiers:
-                    return u
-                for i in range(ord('A'), ord('Z') + 1):
-                    q.append(u + chr(i))
+            n = len(identifiers)
+            return n + 1
+            # from collections import deque
+            # q = deque()
+            # q.append('')
+            # while q:
+            #     u = q.popleft()
+            #     if u and u not in identifiers:
+            #         return u
+            #     for i in range(1, 10):
+            #         q.append(u + str(i))
 
         count = request.POST.get('count')
         count = int(count)
@@ -323,8 +320,8 @@ class ContestAddProblemView(PolygonContestMixin, View):
         for problem in problems:
             if self.contest.contestproblem_set.filter(problem_id=problem).exists():
                 continue
-            identifier = get_next_identifier([x.identifier for x in self.contest.contestproblem_set.all()])
-            self.contest.contestproblem_set.create(problem_id=problem, identifier=identifier)
+            identifier = get_next_identifier([x.problem_identifier for x in self.contest.contestproblem_set.all()])
+            self.contest.contestproblem_set.create(problem_id=problem, problem_identifier=identifier)
         reorder_contest_problem_identifiers(self.contest)
         return HttpResponseRedirect(reverse('polygon:contest_problem', args=(self.contest.id,)))
 

@@ -210,46 +210,58 @@ class StandingsView(View):
         contest_participant = contest.contestparticipant_set.all().select_related('contest', 'user')
         contest_problem = contest.contestproblem_set.all().select_related('contest', 'problem')
         submissions = contest.submission_set.all().select_related('contest', 'problem', 'author')
-        result = []
+        max_id = 0
+        index = []
+        for it in contest_problem:
+            max_id = max(max_id, it.id)
+            index.append(it.id)
+        max_id += 1
+        rank = dict()
         for it in contest_participant:
-            participant = it.user
-            one = dict()
-            one['user'] = participant
-            one['score'] = 0
-            one['total'] = 0
-            for ij in contest_problem:
-                problem = ij.problem
-                max_score = 0
-                sum_score = 0
-                flag = 0
-                count = 0
-                for submission in submissions:
-                    if submission.author_id == participant.id and submission.problem_id == problem.id:
-                        count += 1
-                        if submission.status_percent > 99.9:
-                            flag = 1
-                        time_score = 100
-                        time_score_delta = timedelta(minutes=contest.time_score_wait)
-                        if contest.is_time_score:
-                            time_delta = submission.create_time - contest.start_time
-                            if time_delta > time_score_delta and contest.length != time_score_delta:
-                                time_score = 100 * ((contest.end_time - submission.create_time) / \
-                                                    (contest.length - time_score_delta))
-                        now_score = submission.status_percent * 0.6 + submission.status_percent * 0.4 * time_score / 100
-                        if now_score > max_score:
-                            max_score = now_score
-                        sum_score += now_score
-                if contest.is_best_counts:
-                    one['score'] += max_score
-                else:
-                    if count != 0:
-                        one['score'] += sum_score / count
-                if flag:
-                    one['total'] += 1
-            result.append(one)
-        result.sort(key=lambda x: x['score'], reverse=True)
+            problem_score = [0] * max_id
+            problem_ac = [0] * max_id
+            total_score = 0
+            total_ac = 0
+            submit_count = [0] * max_id
+            one = [problem_score, problem_ac, total_score, total_ac, submit_count]
+            rank[it.id] = one
+        for it in submissions:
+            uid = int(it.author_id)
+            pid = int(it.problem_id)
+            rank[uid][4][pid] += 1
+            if it.status_percent > 99.9:
+                if rank[uid][1][pid] == 0:
+                    rank[uid][3] += 1
+                    rank[uid][1][pid] = 1
+            time_score = 100
+            time_score_delta = timedelta(minutes=contest.time_score_wait)
+            if contest.is_time_score:
+                time_delta = it.create_time - contest.start_time
+                if time_delta > time_score_delta and contest.length != time_score_delta:
+                    time_score = 100 * ((contest.end_time - it.create_time) / (contest.length - time_score_delta))
+            new_score = it.status_percent * 0.6 + it.status_percent * 0.4 * time_score / 100
+            old_score = rank[uid][0][pid]
+            if new_score > old_score:
+                rank[uid][0][pid] = new_score
+                rank[uid][2] += new_score - old_score
+        rank_list = []
+        for it in contest_participant:
+            cur = rank[it.id]
+            problem_score = []
+            problem_ac = []
+            submit_count = []
+            total_score = 0
+            total_ac = 0
+            for i in index:
+                problem_score.append(cur[0][i])
+                problem_ac.append(cur[1][i])
+                submit_count.append(cur[4][i])
+            one = [problem_score, problem_ac, submit_count, total_score, total_ac, it.user]
+            rank_list.append(one)
+        rank_list.sort(key=lambda x: x[3], reverse=True)
         problem_score = get_problem_score(contest)
-        return render(request, self.template_name, {'result': result, 'contest': contest, 'user': self.request.user, \
+
+        return render(request, self.template_name, {'rank_list': rank_list, 'contest': contest, 'user': self.request.user, \
                                                     'problem_score': problem_score, })
 
 
@@ -512,3 +524,71 @@ class SubmissionPeakView(View):
                                                     'code_length_data': code_length_data,
                                                     'scatter_chart_problem_id': scatter_chart_problem_id
                                                     })
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+class NewStandingsView(APIView):
+    # template_name = 'contest/standings.jinja2'
+
+    def get(self, request, *args, **kwargs):
+        # if not self.request.user.is_authenticated:
+        #     return HttpResponseRedirect('/')
+        pk = self.kwargs['pk']
+        contest = Contest.objects.get(id=pk)
+        # if not request.user.is_superuser and contest.status != 1:
+        #     return redirect(reverse('contest:list'))
+        contest_participant = contest.contestparticipant_set.all().select_related('contest', 'user')
+        contest_problem = contest.contestproblem_set.all().select_related('contest', 'problem')
+        submissions = contest.submission_set.all().select_related('contest', 'problem', 'author')
+        max_id = 0
+        index = []
+        for it in contest_problem:
+            max_id = max(max_id, it.id)
+            index.append(it.id)
+        max_id += 1
+        rank = dict()
+        for it in contest_participant:
+            problem_score = [0] * max_id
+            problem_ac = [0] * max_id
+            total_score = 0
+            total_ac = 0
+            submit_count = [0] * max_id
+            one = [problem_score, problem_ac, total_score, total_ac, submit_count]
+            rank[it.id] = one
+        for it in submissions:
+            uid = int(it.author_id)
+            pid = int(it.problem_id)
+            rank[uid][4][pid] += 1
+            if it.status_percent > 99.9:
+                if rank[uid][1][pid] == 0:
+                    rank[uid][3] += 1
+                    rank[uid][1][pid] = 1
+            time_score = 100
+            time_score_delta = timedelta(minutes=contest.time_score_wait)
+            if contest.is_time_score:
+                time_delta = it.create_time - contest.start_time
+                if time_delta > time_score_delta and contest.length != time_score_delta:
+                    time_score = 100 * ((contest.end_time - it.create_time) / (contest.length - time_score_delta))
+            new_score = it.status_percent * 0.6 + it.status_percent * 0.4 * time_score / 100
+            old_score = rank[uid][0][pid]
+            if new_score > old_score:
+                rank[uid][0][pid] = new_score
+                rank[uid][2] += new_score - old_score
+        rank_list = []
+        for it in contest_participant:
+            cur = rank[it.id]
+            problem_score = []
+            problem_ac = []
+            submit_count = []
+            total_score = 0
+            total_ac = 0
+            for i in index:
+                problem_score.append(cur[0][i])
+                problem_ac.append(cur[1][i])
+                submit_count.append(cur[4][i])
+            one = [problem_score, problem_ac, submit_count, total_score, total_ac]
+            rank_list.append(one)
+        rank_list.sort(key=lambda x: x[3], reverse=True)
+        problem_score = get_problem_score(contest)
+        return Response({'rank_list': rank_list, 'problem_score': problem_score, })

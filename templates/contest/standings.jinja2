@@ -33,17 +33,17 @@
                 <th style="width: 10%">满分题数</th>
                 <th style="width: 10%">总分</th>
             </tr>
-            {% for ele in result %}
+            {% for ele in rank_list %}
                 <tr>
                     <td>{{ loop.index }}</td>
-                    <td class="submit_username">{{ ele.user.username }}</td>
-                    {% if ele.user.name %}
-                        <td class="submit_username">{{ ele.user.name }}</td>
+                    <td class="submit_username">{{ ele[5].username }}</td>
+                    {% if ele[5].username %}
+                        <td class="submit_username">{{ ele[5].name }}</td>
                     {% else %}
                         <td class="submit_username">无</td>
                     {% endif %}
-                    <td style="font-weight: bolder">{{ ele.total }}</td>
-                    <td style="font-weight: bolder; color: #009A08">{{ ele.score | round(2) }}</td>
+                    <td style="font-weight: bolder">{{ ele[4] }}</td>
+                    <td style="font-weight: bolder; color: #009A08">{{ ele[3] | round(2) }}</td>
                 </tr>
             {% endfor %}
         </table>

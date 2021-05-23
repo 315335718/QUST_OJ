@@ -120,6 +120,7 @@ class ContestProblem(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     identifier = models.CharField(max_length=12)
+    problem_identifier = models.PositiveIntegerField(default=0)
 
     ac_user_count = models.PositiveIntegerField(default=0)
     total_user_count = models.PositiveIntegerField(default=0)
@@ -132,7 +133,7 @@ class ContestProblem(models.Model):
 
     class Meta:
         unique_together = ('problem', 'contest')
-        ordering = ['identifier']
+        ordering = ['id']
         verbose_name_plural = '测试_问题'
 
     @property
@@ -145,6 +146,7 @@ class ContestProblem(models.Model):
 
     def __str__(self):
         return '%d. %s --- %s' % (self.pk, self.contest.title, self.problem.title)
+
 
 class ContestParticipant(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
