@@ -224,10 +224,10 @@ class StandingsView(View):
             total_ac = 0
             submit_count = [0] * max_id
             one = [problem_score, problem_ac, total_score, total_ac, submit_count]
-            rank[it.id] = one
+            rank[it.user_id] = one
         for it in submissions:
-            uid = int(it.author_id)
-            pid = int(it.problem_id)
+            uid = it.author_id
+            pid = it.problem_id
             rank[uid][4][pid] += 1
             if it.status_percent > 99.9:
                 if rank[uid][1][pid] == 0:
@@ -246,7 +246,7 @@ class StandingsView(View):
                 rank[uid][2] += new_score - old_score
         rank_list = []
         for it in contest_participant:
-            cur = rank[it.id]
+            cur = rank[it.user_id]
             problem_score = []
             problem_ac = []
             submit_count = []
