@@ -225,7 +225,11 @@ class StandingsView(View):
             submit_count = [0] * max_id
             one = [problem_score, problem_ac, total_score, total_ac, submit_count]
             rank[it.user_id] = one
+        st = contest.start_time
+        ed = contest.end_time
         for it in submissions:
+            if it.create_time < st or it.create_time > ed:
+                continue
             uid = it.author_id
             pid = it.problem_id
             rank[uid][4][pid] += 1
@@ -250,8 +254,8 @@ class StandingsView(View):
             problem_score = []
             problem_ac = []
             submit_count = []
-            total_score = 0
-            total_ac = 0
+            total_score = cur[2]
+            total_ac = cur[3]
             for i in index:
                 problem_score.append(cur[0][i])
                 problem_ac.append(cur[1][i])
@@ -260,7 +264,6 @@ class StandingsView(View):
             rank_list.append(one)
         rank_list.sort(key=lambda x: x[3], reverse=True)
         problem_score = get_problem_score(contest)
-
         return render(request, self.template_name, {'rank_list': rank_list, 'contest': contest, 'user': self.request.user, \
                                                     'problem_score': problem_score, })
 
