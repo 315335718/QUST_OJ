@@ -45,6 +45,7 @@ class User(AbstractUser):
     submit_total = models.PositiveIntegerField("累计提交数", default=0)
 
     wx_openid = models.CharField("微信openid", max_length=192, blank=True, null=True, default=None)
+    wx_avatar_url = models.CharField("微信头像url", max_length=300, blank=True, null=True, default=None)
 
     def __str__(self):
         return self.username

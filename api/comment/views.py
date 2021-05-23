@@ -8,12 +8,12 @@ from comment.models import Article
 
 class creat_articalView(APIView):
     def post(self, request):
-        title = request.POST.get('title',1)
-        des = request.POST.get('html',1)
         text = request.POST.get('text', 1)
         userid = request.POST.get('user_id',1)
-        Article.objects.create(title=title,description=des,author_id=userid,description_text=text)
-        return Response({"status": True})
+        images_count = int(request.POST.get('images_count',1))
+        article = Article.objects.create(author_id=userid,description=text,images_count=images_count)
+        id = article.id
+        return Response({"status": True,"id":id})
 
 
 class UserSerSerializer(serializers.ModelSerializer):
@@ -24,10 +24,9 @@ class UserSerSerializer(serializers.ModelSerializer):
 
 class articalSerializer(serializers.ModelSerializer):
     author = UserSerSerializer()
-
     class Meta:
         model = Article
-        fields = ("title", "description","description_text","count","update_time","author")
+        fields = ( "description","images_count","count","update_time","author")
 
 
 class list_articalView(APIView):

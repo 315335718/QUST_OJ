@@ -32,7 +32,7 @@ class ContestListView(APIView):
             one['access_level'] = it.access_level
             one['status'] = it.status
             contest_list.append(one)
-        return Response({'contest_list': contest_list})
+        return Response({'flag': 1, 'contest_list': contest_list})
 
 
 class ContestDashboardView(APIView):
@@ -62,4 +62,5 @@ class ContestDashboardView(APIView):
             problem_list.append(it.problem)
         serializer = ProblemSerializer(problem_list, many=True)
         problem_score = get_problem_score(contest)
-        return Response({'flag': 1, 'message': '正常访问', 'problem_list': serializer.data, 'problem_score': problem_score})
+        return Response({'flag': 1, 'message': '正常访问', 'problem_list': serializer.data, 'problem_score': problem_score, \
+                         'status': contest.status})

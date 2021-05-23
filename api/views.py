@@ -80,7 +80,7 @@ class TestView2(APIView):
         return Response({"status": True})
 
 
-def get_or_create_username_and_id(openid):
+def get_or_create_username_and_id(openid, avatar_url):
     if User.objects.filter(wx_openid=openid).exists():
         user = User.objects.get(wx_openid=openid)
         return user.username, user.id
@@ -90,21 +90,22 @@ def get_or_create_username_and_id(openid):
         username = 'wexin_' + random_str
         password = make_password(openid)
         fake_email = random_str + '@' + 'qq.com'
-        print(username)
-        user = User.objects.create(username=username, password=password, email=fake_email, wx_openid=openid)
+        user = User.objects.create(username=username, password=password, email=fake_email, wx_openid=openid, \
+                                   wx_avatar_url=avatar_url)
         return user.username, user.id
 
 
 class WxLoginView(APIView):
     def post(self, request):
         jscode = request.POST.get('code')
+        avatar_url = request.POST.get('avatar_url')
         url = 'https://api.weixin.qq.com/sns/jscode2session'
         url = url + "?appid=" + WX_APP_ID + "&secret=" + WX_APP_SECRET + "&js_code=" + jscode + "&grant_type=authorization_code"
         res = requests.get(url).json()
         if 'errcode' in res.keys():
             return Response({'flag': 0})
         openid = res['openid']
-        username, user_id = get_or_create_username_and_id(openid)
+        username, user_id = get_or_create_username_and_id(openid, avatar_url)
         data = {
             'username': username,
             'password': openid,
