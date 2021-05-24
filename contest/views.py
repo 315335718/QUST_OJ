@@ -223,7 +223,8 @@ class StandingsView(View):
             total_score = 0
             total_ac = 0
             submit_count = [0] * max_id
-            one = [problem_score, problem_ac, total_score, total_ac, submit_count]
+            time_penalty = [0] * max_id
+            one = [problem_score, problem_ac, total_score, total_ac, submit_count, time_penalty]
             rank[it.user_id] = one
         st = contest.start_time
         ed = contest.end_time
@@ -247,6 +248,7 @@ class StandingsView(View):
             old_score = rank[uid][0][pid]
             if new_score > old_score:
                 rank[uid][0][pid] = new_score
+                rank[uid][5][pid] = it.status_percent - new_score
                 rank[uid][2] += new_score - old_score
         rank_list = []
         for it in contest_participant:
@@ -256,16 +258,19 @@ class StandingsView(View):
             submit_count = []
             total_score = cur[2]
             total_ac = cur[3]
+            time_penalty = []
             for i in index:
                 problem_score.append(cur[0][i])
                 problem_ac.append(cur[1][i])
                 submit_count.append(cur[4][i])
-            one = [problem_score, problem_ac, submit_count, total_score, total_ac, it.user]
+                time_penalty.append(cur[5][i])
+            one = [problem_score, problem_ac, submit_count, total_score, total_ac, it.user, time_penalty]
             rank_list.append(one)
         rank_list.sort(key=lambda x: x[3], reverse=True)
         problem_score = get_problem_score(contest)
+        width = len(index) * 120 + 640
         return render(request, self.template_name, {'rank_list': rank_list, 'contest': contest, 'user': self.request.user, \
-                                                    'problem_score': problem_score, })
+                                                    'problem_score': problem_score, 'index': index, 'width': width})
 
 
 class OutputStandingsToExcelView(View):
