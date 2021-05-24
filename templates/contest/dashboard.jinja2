@@ -72,7 +72,7 @@
         <div class="problem_other_info">
             <h4>&nbsp&nbsp→&nbsp&nbsp题目跳转</h4>
             {% for ele in result %}
-                <p><a class="gogo" href="{{ url('contest:contest_problem', args=(contest.id, ele.id, )) }}">{{ ele.id }}. {{ ele.title[:12] }}{% if ele.title | length > 12 %}...{% endif %}</a></p>
+                <p><a class="gogo" href="{{ url('contest:contest_problem', args=(contest.id, ele.id, )) }}">{{ ele.id }}. {{ ele.title[:10] }}{% if ele.title | length > 10 %}...{% endif %}</a></p>
             {% endfor %}
         </div>
     </div>
