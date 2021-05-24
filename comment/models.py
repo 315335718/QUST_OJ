@@ -16,7 +16,7 @@ class Article(models.Model):
         verbose_name_plural = '帖子'
 
     def __str__(self):
-        return '%d. %s' % (self.pk, self.title)
+        return '%d. %s' % (self.pk, self.description[:10])
 
 
 class Comment(models.Model):
