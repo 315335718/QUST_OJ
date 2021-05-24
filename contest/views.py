@@ -213,8 +213,8 @@ class StandingsView(View):
         max_id = 0
         index = []
         for it in contest_problem:
-            max_id = max(max_id, it.id)
-            index.append(it.id)
+            max_id = max(max_id, it.problem.id)
+            index.append(it.problem.id)
         max_id += 1
         rank = dict()
         for it in contest_participant:
