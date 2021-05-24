@@ -119,6 +119,7 @@ class ContestProblemView(View):
             return HttpResponseRedirect('/')
         pk = self.kwargs['pk']
         p_pk = self.kwargs['p_pk']
+        idx = request.GET.get('index', 1)
         contest = Contest.objects.get(pk=pk)
         if not request.user.is_superuser and contest.status < 0:
             return redirect(reverse('contest:list'))
@@ -141,7 +142,7 @@ class ContestProblemView(View):
             one['id'] = p.id
             one['title'] = p.title
             result.append(one)
-        return render(request, self.template_name, {'contest': contest, 'problem': problem, \
+        return render(request, self.template_name, {'contest': contest, 'problem': problem, 'idx': idx, \
                                                     'problem_score': problem_score, 'result': result})
 
 
@@ -197,15 +198,13 @@ class ContestSubmissionsView(View):
         return render(request, self.template_name, contents)
 
 
-class StandingsView(View):
-    template_name = 'contest/standings.jinja2'
-
+class CreateStandingsView(View):
     def get(self, request, *args, **kwargs):
         if not self.request.user.is_authenticated:
             return HttpResponseRedirect('/')
         pk = self.kwargs['pk']
         contest = Contest.objects.get(id=pk)
-        if not request.user.is_superuser and contest.status != 1:
+        if not request.user.is_superuser:
             return redirect(reverse('contest:list'))
         contest_participant = contest.contestparticipant_set.all().select_related('contest', 'user')
         contest_problem = contest.contestproblem_set.all().select_related('contest', 'problem')
@@ -264,11 +263,31 @@ class StandingsView(View):
                 problem_ac.append(cur[1][i])
                 submit_count.append(cur[4][i])
                 time_penalty.append(cur[5][i])
-            one = [problem_score, problem_ac, submit_count, total_score, total_ac, it.user, time_penalty]
+            user = [it.user.username, it.user.name, it.user_id]
+            one = [user, total_ac, total_score, problem_score, submit_count, time_penalty, problem_ac]
             rank_list.append(one)
-        rank_list.sort(key=lambda x: x[3], reverse=True)
+        rank_list.sort(key=lambda x: x[2], reverse=True)
+        contest.standings = str(rank_list)
+        contest.save(update_fields=['standings'])
+        return redirect(reverse('contest:standings', kwargs={'pk': contest.id}))
+
+
+class StandingsView(View):
+    template_name = 'contest/standings.jinja2'
+
+    def get(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return HttpResponseRedirect('/')
+        pk = self.kwargs['pk']
+        contest = Contest.objects.get(id=pk)
+        if not request.user.is_superuser and contest.status != 1:
+            return redirect(reverse('contest:list'))
+        contest_problem = contest.contestproblem_set.all()
+        n = len(contest_problem)
+        index = n * [1]
+        rank_list = eval(contest.standings)
         problem_score = get_problem_score(contest)
-        width = len(index) * 120 + 640
+        width = n * 120 + 570
         return render(request, self.template_name, {'rank_list': rank_list, 'contest': contest, 'user': self.request.user, \
                                                     'problem_score': problem_score, 'index': index, 'width': width})
 
@@ -532,71 +551,3 @@ class SubmissionPeakView(View):
                                                     'code_length_data': code_length_data,
                                                     'scatter_chart_problem_id': scatter_chart_problem_id
                                                     })
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-
-class NewStandingsView(APIView):
-    # template_name = 'contest/standings.jinja2'
-
-    def get(self, request, *args, **kwargs):
-        # if not self.request.user.is_authenticated:
-        #     return HttpResponseRedirect('/')
-        pk = self.kwargs['pk']
-        contest = Contest.objects.get(id=pk)
-        # if not request.user.is_superuser and contest.status != 1:
-        #     return redirect(reverse('contest:list'))
-        contest_participant = contest.contestparticipant_set.all().select_related('contest', 'user')
-        contest_problem = contest.contestproblem_set.all().select_related('contest', 'problem')
-        submissions = contest.submission_set.all().select_related('contest', 'problem', 'author')
-        max_id = 0
-        index = []
-        for it in contest_problem:
-            max_id = max(max_id, it.id)
-            index.append(it.id)
-        max_id += 1
-        rank = dict()
-        for it in contest_participant:
-            problem_score = [0] * max_id
-            problem_ac = [0] * max_id
-            total_score = 0
-            total_ac = 0
-            submit_count = [0] * max_id
-            one = [problem_score, problem_ac, total_score, total_ac, submit_count]
-            rank[it.id] = one
-        for it in submissions:
-            uid = int(it.author_id)
-            pid = int(it.problem_id)
-            rank[uid][4][pid] += 1
-            if it.status_percent > 99.9:
-                if rank[uid][1][pid] == 0:
-                    rank[uid][3] += 1
-                    rank[uid][1][pid] = 1
-            time_score = 100
-            time_score_delta = timedelta(minutes=contest.time_score_wait)
-            if contest.is_time_score:
-                time_delta = it.create_time - contest.start_time
-                if time_delta > time_score_delta and contest.length != time_score_delta:
-                    time_score = 100 * ((contest.end_time - it.create_time) / (contest.length - time_score_delta))
-            new_score = it.status_percent * 0.6 + it.status_percent * 0.4 * time_score / 100
-            old_score = rank[uid][0][pid]
-            if new_score > old_score:
-                rank[uid][0][pid] = new_score
-                rank[uid][2] += new_score - old_score
-        rank_list = []
-        for it in contest_participant:
-            cur = rank[it.id]
-            problem_score = []
-            problem_ac = []
-            submit_count = []
-            total_score = 0
-            total_ac = 0
-            for i in index:
-                problem_score.append(cur[0][i])
-                problem_ac.append(cur[1][i])
-                submit_count.append(cur[4][i])
-            one = [problem_score, problem_ac, submit_count, total_score, total_ac]
-            rank_list.append(one)
-        rank_list.sort(key=lambda x: x[3], reverse=True)
-        problem_score = get_problem_score(contest)
-        return Response({'rank_list': rank_list, 'problem_score': problem_score, })

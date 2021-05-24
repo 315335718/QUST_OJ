@@ -21,6 +21,9 @@
             {% endif %}
         </div>
         <div class="problem_navbar_fun_field">
+            {% if user.is_superuser %}
+                <a class="problem_navbar" href="{{ url('contest:create_standings', args=(contest.id, )) }}">生成榜单</a>
+            {% endif %}
             {% if user.is_superuser or contest.status == 1 %}
                 <a class="problem_navbar" href="{{ url('contest:submission_peak', args=(contest.id, )) }}">可视化分析</a>
             {% endif %}
@@ -30,8 +33,8 @@
                 <tr style="height: 45px">
                     <th style="width: 90px">排名</th>
                     <th style="width: 170px">用户</th>
-                    <th style="width: 170px">姓名</th>
-                    <th style="width: 120px">满分题数</th>
+                    <th style="width: 110px">姓名</th>
+                    <th style="width: 110px">满分题数</th>
                     <th style="width: 90px">总分</th>
                     {% for idx in index %}
                         <th style="width: 120px">{{ loop.index }}</th>
@@ -40,21 +43,21 @@
                 {% for ele in rank_list %}
                     <tr style="height: 50px">
                         <td>{{ loop.index }}</td>
-                        <td class="submit_username" style="width: 170px">{{ ele[5].username }}</td>
-                        {% if ele[5].name %}
-                            <td class="submit_username" style="width: 170px">{{ ele[5].name }}</td>
+                        <td class="submit_username" style="width: 170px">{{ ele[0][0] }}</td>
+                        {% if ele[0][1] %}
+                            <td class="submit_username" style="width: 110px">{{ ele[0][1] }}</td>
                         {% else %}
-                            <td class="submit_username" style="width: 170px">无</td>
+                            <td class="submit_username" style="width: 110px">无</td>
                         {% endif %}
-                        <td style="font-weight: bolder; width: 120px;">{{ ele[4] }}</td>
-                        <td style="font-weight: bolder; color: #009A08; width: 90px;">{{ ele[3] | round(2) }}</td>
-                        {% for detail in ele[0] %}
+                        <td style="font-weight: bolder; width: 110px;">{{ ele[1] }}</td>
+                        <td style="font-weight: bolder; color: #009A08; width: 90px;">{{ ele[2] | round(2) }}</td>
+                        {% for detail in ele[3] %}
                             <td style="width: 120px; color: #777777">
                                 <span style="color: {% if detail > 0 %}#009A08{% else %}#D92B2F{% endif %}; font-weight: bold">
                                     {{ detail | round(2) }}
                                 </span>
-                                (<span style="color: #2987CC; font-weight: bold;">+{{ ele[2][loop.index0] }}</span>)<br/>
-                                ({{ (detail + ele[6][loop.index0]) | round(1) }} - {{ ele[6][loop.index0] | round(1) }})
+                                (<span style="color: #2987CC; font-weight: bold;">+{{ ele[4][loop.index0] }}</span>)<br/>
+                                ({{ (detail + ele[5][loop.index0]) | round(1) }} - {{ ele[5][loop.index0] | round(1) }})
                             </td>
                         {% endfor %}
                     </tr>

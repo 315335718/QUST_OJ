@@ -55,6 +55,8 @@ class Contest(models.Model):
     problems = models.ManyToManyField(Problem, through='ContestProblem')
     participants = models.ManyToManyField(User, through='ContestParticipant', related_name='contests')
 
+    standings = models.TextField("榜单", blank=True, default=None)
+
     access_level = models.PositiveIntegerField("访问控制", default=0, choices=ACCESS_LEVEL_OPTIONS)
 
     objects = ContestManager()

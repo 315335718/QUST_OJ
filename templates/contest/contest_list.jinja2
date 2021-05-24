@@ -43,7 +43,7 @@
 			<tr class="contest" >
 				<td class="number">{{ contest.id }}</td>
                 <td class="td_title" onclick="location.href='{{ url('contest:dashboard', args=(contest.id, )) }}';">{{contest.title[:20]}}{% if contest.title | length > 20 %}...{% endif %}</td>
-				<td >{% if contest.contest_type == 0 %}测试{% else %}实验{% endif %}</td>
+				<td >{% if contest.contest_type == 0 %}测试{% else %}作业{% endif %}</td>
                 <td>{{ contest.start_time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
 				<td>{{ contest.length }}</td>
                 <td>{% if contest.is_best_counts %}是{% else %}否{% endif %}</td>

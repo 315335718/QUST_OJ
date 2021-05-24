@@ -26,12 +26,15 @@
             {% endif %}
         </div>
         <div class="problem_navbar_fun_field">
+            {% if user.is_superuser %}
+                <a class="problem_navbar" href="{{ url('contest:create_standings', args=(contest.id, )) }}">生成榜单</a>
+            {% endif %}
             {% if user.is_superuser or contest.status == 1 %}
                 <a class="problem_navbar" href="{{ url('contest:submission_peak', args=(contest.id, )) }}">可视化分析</a>
             {% endif %}
         </div>
         <div style="text-align: left;">
-            <h2 class="problem_title">{{problem.id}}. {{problem.title}}</h2>
+            <h2 class="problem_title">{{idx}}. {{problem.title}}</h2>
             <p class="problem_label">题目类型：<strong>{{problem.problem_type}}</strong></p>
             <p class="problem_label">题目难度：<strong>{{problem.level}}</strong></p>
             <p class="problem_description">{{problem.description}}</p>
@@ -50,7 +53,7 @@
         <div class="problem_other_info">
             <h4>&nbsp&nbsp→&nbsp&nbsp题目跳转</h4>
             {% for ele in result %}
-                <p><a class="gogo" href="{{ url('contest:contest_problem', args=(contest.id, ele.id, )) }}">{{ ele.id }}. {{ ele.title[:10] }}{% if ele.title | length > 10 %}...{% endif %}</a></p>
+                <p><a class="gogo" href="{{ url('contest:contest_problem', args=(contest.id, ele.id, )) }}?index={{ loop.index }}">{{ loop.index }}. {{ ele.title[:10] }}{% if ele.title | length > 10 %}...{% endif %}</a></p>
             {% endfor %}
         </div>
     </div>
