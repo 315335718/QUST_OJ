@@ -32,7 +32,7 @@
             <a class="problem_navbar" href="{{ url('contest:dashboard', args=(contest.id, )) }}">总览</a>
             <a class="problem_navbar" href="{{ url('contest:my_submissions', args=(contest.id, )) }}">我的提交</a>
             <a class="problem_navbar" href="{{ url('contest:submissions', args=(contest.id, )) }}">所有提交</a>
-            {% if user.is_superuser %}
+            {% if user.is_superuser or contest.status == 1 %}
                 <a class="problem_navbar" href="{{ url('contest:standings', args=(contest.id, )) }}">榜单</a>
             {% endif %}
             {% if user.is_superuser %}
@@ -40,7 +40,7 @@
             {% endif %}
         </div>
         <div class="problem_navbar_fun_field">
-            {% if user.is_superuser %}
+            {% if user.is_superuser or contest.status == 1 %}
                 <a class="problem_navbar" href="{{ url('contest:submission_peak', args=(contest.id, )) }}">可视化分析</a>
             {% endif %}
         </div>
