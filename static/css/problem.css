@@ -56,7 +56,7 @@
 }
 
 .problem_navbar_field {
-    width: 70%;
+    width: 60%;
     margin-top: 5px;
     text-align: left;
     margin-bottom: 25px;
@@ -84,7 +84,7 @@
 }
 
 .problem_navbar_fun_field {
-    width: 30%;
+    width: 40%;
     margin-top: 5px;
     text-align: right;
     margin-bottom: 25px;
@@ -107,6 +107,24 @@
 .problem_navbar_fun_field .problem_navbar:hover {
     color: white;
     background-color: #4a5eba;
+    transition: all .3s ease;
+}
+
+.problem_navbar_fun_field .problem_right_navbar {
+    margin-left: 10px;
+    text-decoration: none;
+	background-color: #EB501C;
+    padding: 5px 18px;
+    border-style: solid;
+  	border-width: 2px ;
+    color: white;
+    font-size: 15px;
+    border-radius: 6px;
+}
+
+.problem_navbar_fun_field .problem_right_navbar:hover {
+    color: white;
+    background-color: #D32F2F;
     transition: all .3s ease;
 }
 

@@ -198,7 +198,7 @@ class ContestSubmissionsView(View):
         return render(request, self.template_name, contents)
 
 
-class CreateStandingsView(View):
+class CreateStandingsAndVisualizationView(View):
     def get(self, request, *args, **kwargs):
         if not self.request.user.is_authenticated:
             return HttpResponseRedirect('/')
@@ -208,9 +208,12 @@ class CreateStandingsView(View):
             return redirect(reverse('contest:list'))
         contest_participant = contest.contestparticipant_set.all().select_related('contest', 'user')
         contest_problem = contest.contestproblem_set.all().select_related('contest', 'problem')
-        submissions = contest.submission_set.all().select_related('contest', 'problem', 'author')
-        max_id = 0
-        index = []
+        submissions = contest.submission_set.all().select_related('contest', 'problem', 'author').order_by('create_time')
+        '''
+        榜单
+        '''
+        max_id = 0  # 问题的最大id
+        index = []  # 有效数组下标
         for it in contest_problem:
             max_id = max(max_id, it.problem.id)
             index.append(it.problem.id)
@@ -225,10 +228,29 @@ class CreateStandingsView(View):
             time_penalty = [0] * max_id
             one = [problem_score, problem_ac, total_score, total_ac, submit_count, time_penalty]
             rank[it.user_id] = one
-        st = contest.start_time
-        ed = contest.end_time
+        st = contest.start_time  # 测试开始时间
+        ed = contest.end_time  # 测试结束时间
+        p = 0
+        # 可视化分析所需数组
+        correct_count = max_id * [0]
+        has_correct_count = max_id * [0]
+        compile_error_count = max_id * [0]
+        incorrect_count = max_id * [0]
+        all_count = max_id * [0]
+        sum_score = max_id * [0]
+        pro_name = max_id * [0]
+        ok_submissions = []
+        code_length = []
+        for i in range(max_id):
+            curr = dict()
+            curr[-1] = 0
+            code_length.append(curr)
+        # code_length = [dict()] * max_id  # 直接用空字典不行，需要用一个有值的字典
+        for i in range(max_id + 1):
+            ok_submissions.append([])
         for it in submissions:
             if it.create_time < st or it.create_time > ed:
+                p += 1  # 可视化下标
                 continue
             uid = it.author_id
             pid = it.problem_id
@@ -249,6 +271,26 @@ class CreateStandingsView(View):
                 rank[uid][0][pid] = new_score
                 rank[uid][5][pid] = it.status_percent - new_score
                 rank[uid][2] += new_score - old_score
+
+            # 可视化分析
+            cur_id = it.problem_id
+            all_count[cur_id] += 1
+            if it.status_score >= 99.99:
+                correct_count[cur_id] += 1
+                cur_length = len(it.code)
+                # 统计代码长度数量
+                if cur_length not in code_length[cur_id]:
+                    code_length[cur_id][cur_length] = 0
+                code_length[cur_id][cur_length] += 1
+                ok_submissions[cur_id].append(cur_length)  # 满分的加到每个题目的submission
+            elif it.status_score > 0:
+                has_correct_count[cur_id] += 1
+            else:
+                incorrect_count[cur_id] += 1
+            if it.status == 2:
+                compile_error_count[cur_id] += 1
+            sum_score[cur_id] += it.status_score
+
         rank_list = []
         for it in contest_participant:
             cur = rank[it.user_id]
@@ -269,6 +311,107 @@ class CreateStandingsView(View):
         rank_list.sort(key=lambda x: x[2], reverse=True)
         contest.standings = str(rank_list)
         contest.save(update_fields=['standings'])
+        '''
+        可视化分析
+        '''
+        # 流量峰值图数据处理
+        length1 = contest.length.seconds
+        step1 = 10
+        n1 = int(length1 / step1)
+        end_time = ed
+        cur_time = st
+        times = []
+        delta = timedelta(seconds=step1)
+        submissions_len = len(submissions)
+        while cur_time <= end_time:
+            if p < submissions_len and cur_time <= submissions[p].create_time <= cur_time + delta:
+                cnt = 0
+                while p < submissions_len and cur_time <= submissions[p].create_time <= cur_time + delta:
+                    cnt += 1
+                    p += 1
+                times.append(cnt)
+            else:
+                times.append(0)
+            cur_time += delta
+        # 提交信息折线柱状图、评测状态饼状图
+        for it in contest_problem:
+            pro_name[it.problem_id] = str(it.problem_id) + "." + it.problem.title
+
+        correct_submission = []  # 答案正确提交数量
+        has_correct_submission = []  # 部分正确提交数量
+        compile_error_submission = []  # 编译错误提交数量
+        incorrect_submission = []  # 完全错误提交数量
+        all_submission = []  # 所有提交数量
+        average_score = []  # 平均分
+        correct_radio = []  # 正确率
+        problem_name = []  # 题目名称
+        code_length_data = []  # 代码长度数据
+        scatter_chart_problem_id = []  # 散点图问题id
+
+        max_submission_times = 0
+        scatter_chart_id = 0
+        for i in index:
+            scatter_chart_problem_id.append("pro." + str(i))
+            all_submission.append(all_count[i])
+            correct_submission.append(correct_count[i])
+            has_correct_submission.append(has_correct_count[i])
+            compile_error_submission.append(compile_error_count[i])
+            incorrect_submission.append(incorrect_count[i])
+            max_submission_times = max(max_submission_times, all_count[i])
+            if all_count[i] != 0:
+                average_score.append(round(sum_score[i] / all_count[i], 3))
+                correct_radio.append(round(correct_count[i] / all_count[i] * 100, 4))
+            else:
+                average_score.append(0)
+                correct_radio.append(0)
+            if len(pro_name[i]) > 15:
+                problem_name.append(pro_name[i][:15] + "...")
+            else:
+                problem_name.append(pro_name[i])
+            # 处理代码长度散点图
+            ok_submissions[i].sort()
+            s_len = len(ok_submissions[i])
+            k = 0
+            j = 0
+            max_code_len_cnt = max(code_length[i].values())
+            min_code_len_cnt = min(code_length[i].values())
+            while j < s_len:
+                while k < ok_submissions[i][j]:
+                    k += 1
+                len_cnt = 0
+                while j < s_len and k == ok_submissions[i][j]:
+                    len_cnt += 1
+                    j += 1
+                now_data = []
+                now_data.append(scatter_chart_id)
+                now_data.append(k)
+                if all_count[i] != 0:
+                    low_size = 18
+                    size_len = 48
+                    size = int(
+                        low_size + (len_cnt - min_code_len_cnt) / (max_code_len_cnt - min_code_len_cnt) * size_len)
+                    now_data.append(size)
+                else:
+                    now_data.append(0)
+                code_length_data.append(now_data)
+            scatter_chart_id += 1
+
+        max_submission_times += int(max_submission_times * 0.36)
+        # 评测状态饼状图
+        pie_chart_problem = ['问题'] + problem_name
+        pie_chart_correct = ['完全正确'] + correct_submission
+        pie_chart_has_correct = ['部分正确'] + has_correct_submission
+        pie_chart_incorrect = ['完全错误'] + incorrect_submission
+        pie_chart_compile_error = ['编译错误'] + compile_error_submission
+        all_pie_chart = [pie_chart_problem, pie_chart_correct, pie_chart_has_correct, pie_chart_compile_error, \
+                         pie_chart_incorrect]
+
+        data = [times, 'contest', n1, length1, step1, 'start_time', correct_submission, all_submission, average_score, \
+                correct_radio, problem_name, max_submission_times, all_pie_chart, code_length_data,
+                scatter_chart_problem_id]
+        contest.visualization = str(data)
+        print(contest.visualization)
+        contest.save(update_fields=['visualization'])
         return redirect(reverse('contest:standings', kwargs={'pk': contest.id}))
 
 
@@ -286,10 +429,13 @@ class StandingsView(View):
         n = len(contest_problem)
         index = n * [1]
         rank_list = eval(contest.standings)
+        if len(str(rank_list)) < 5:
+            return redirect(reverse('contest:list'))
         problem_score = get_problem_score(contest)
         width = n * 120 + 570
-        return render(request, self.template_name, {'rank_list': rank_list, 'contest': contest, 'user': self.request.user, \
-                                                    'problem_score': problem_score, 'index': index, 'width': width})
+        return render(request, self.template_name,
+                      {'rank_list': rank_list, 'contest': contest, 'user': self.request.user, \
+                       'problem_score': problem_score, 'index': index, 'width': width})
 
 
 class OutputStandingsToExcelView(View):
@@ -380,7 +526,7 @@ class OutputStandingsToExcelView(View):
                 raise Http404
 
 
-class SubmissionPeakView(View):
+class VisualizationView(View):
     template_name = 'contest/submission_peak.jinja2'
 
     def get(self, request, *args, **kwargs):
@@ -388,166 +534,22 @@ class SubmissionPeakView(View):
         contest = Contest.objects.get(id=pk)
         if not request.user.is_superuser and contest.status != 1:
             return redirect(reverse('contest:list'))
-        '''
-        流量峰值图数据处理
-        '''
-        start_time = contest.start_time
-        length1 = contest.length.seconds
-        step1 = 10
-        n1 = int(length1 / step1)
-        queryset = contest.submission_set.all().select_related('contest', 'problem', 'author').order_by('create_time')
-        end_time = contest.end_time
-        cur_time = start_time
-        times = []
-        delta = timedelta(seconds=step1)
-        p = 0
-        queryset_len = len(queryset)
-        while p < queryset_len and queryset[p].create_time < cur_time:
-            p += 1
-        while cur_time <= end_time:
-            if p < queryset_len and cur_time <= queryset[p].create_time <= cur_time + delta:
-                cnt = 0
-                while p < queryset_len and cur_time <= queryset[p].create_time <= cur_time + delta:
-                    cnt += 1
-                    p += 1
-                times.append(cnt)
-            else:
-                times.append(0)
-            cur_time += delta
-
-        '''
-        提交信息折线柱状图、评测状态饼状图
-        '''
-        contest_problems = contest.contestproblem_set.all().select_related('contest', 'problem')
-        max_id = 0
-        index = []
-        for it in contest_problems:
-            max_id = max(max_id, it.problem_id)
-            index.append(it.problem_id)
-        max_id += 1
-        correct_count = max_id * [0]
-        has_correct_count = max_id * [0]
-        compile_error_count = max_id * [0]
-        incorrect_count = max_id * [0]
-        all_count = max_id * [0]
-        sum_score = max_id * [0]
-        pro_name = max_id * [0]
-        ok_submissions = []
-        code_length = []
-        for i in range(max_id):
-            curr = dict()
-            curr[-1] = 0
-            code_length.append(curr)
-        # code_length = [dict()] * max_id  # 直接用空字典不行，需要用一个有值的字典
-        for i in range(max_id + 1):
-            ok_submissions.append([])
-        for s in queryset:
-            cur_id = s.problem_id
-            all_count[cur_id] += 1
-            if s.status_score >= 99.99:
-                correct_count[cur_id] += 1
-                cur_length = len(s.code)
-                # 统计代码长度数量
-                if cur_length not in code_length[cur_id]:
-                    code_length[cur_id][cur_length] = 0
-                code_length[cur_id][cur_length] += 1
-                ok_submissions[cur_id].append(cur_length)  # 满分的加到每个题目的submission
-            elif s.status_score > 0:
-                has_correct_count[cur_id] += 1
-            else:
-                incorrect_count[cur_id] += 1
-            if s.status == 2:
-                compile_error_count[cur_id] += 1
-            sum_score[cur_id] += s.status_score
-        for it in contest_problems:
-            pro_name[it.problem_id] = str(it.problem_id) + "." + it.problem.title
-
-        correct_submission = []  # 答案正确提交数量
-        has_correct_submission = []  # 部分正确提交数量
-        compile_error_submission = []  # 编译错误提交数量
-        incorrect_submission = []  # 完全错误提交数量
-        all_submission = []  # 所有提交数量
-        average_score = []  # 平均分
-        correct_radio = []  # 正确率
-        problem_name = []  # 题目名称
-        code_length_data = []  # 代码长度数据
-        scatter_chart_problem_id = []  # 散点图问题id
-
-        max_submission_times = 0
-        scatter_chart_id = 0
-        for i in index:
-            scatter_chart_problem_id.append("pro." + str(i))
-            all_submission.append(all_count[i])
-            correct_submission.append(correct_count[i])
-            has_correct_submission.append(has_correct_count[i])
-            compile_error_submission.append(compile_error_count[i])
-            incorrect_submission.append(incorrect_count[i])
-            max_submission_times = max(max_submission_times, all_count[i])
-            if all_count[i] != 0:
-                average_score.append(round(sum_score[i] / all_count[i], 3))
-                correct_radio.append(round(correct_count[i] / all_count[i] * 100, 4))
-            else:
-                average_score.append(0)
-                correct_radio.append(0)
-            if len(pro_name[i]) > 15:
-                problem_name.append(pro_name[i][:15] + "...")
-            else:
-                problem_name.append(pro_name[i])
-            # 处理代码长度散点图
-            ok_submissions[i].sort()
-            s_len = len(ok_submissions[i])
-            k = 0
-            j = 0
-            max_code_len_cnt = max(code_length[i].values())
-            min_code_len_cnt = min(code_length[i].values())
-            while j < s_len:
-                while k < ok_submissions[i][j]:
-                    k += 1
-                len_cnt = 0
-                while j < s_len and k == ok_submissions[i][j]:
-                    len_cnt += 1
-                    j += 1
-                now_data = []
-                now_data.append(scatter_chart_id)
-                now_data.append(k)
-                if all_count[i] != 0:
-                    low_size = 18
-                    size_len = 48
-                    size = int(low_size + (len_cnt - min_code_len_cnt) / (max_code_len_cnt - min_code_len_cnt) * size_len)
-                    now_data.append(size)
-                else:
-                    now_data.append(0)
-                code_length_data.append(now_data)
-            scatter_chart_id += 1
-
-        max_submission_times += int(max_submission_times * 0.36)
-        '''
-        评测状态饼状图
-        '''
-        pie_chart_problem = ['问题'] + problem_name
-        pie_chart_correct = ['完全正确'] + correct_submission
-        pie_chart_has_correct = ['部分正确'] + has_correct_submission
-        pie_chart_incorrect = ['完全错误'] + incorrect_submission
-        pie_chart_compile_error = ['编译错误'] + compile_error_submission
-        all_pie_chart = [pie_chart_problem, pie_chart_correct, pie_chart_has_correct, pie_chart_compile_error, \
-                         pie_chart_incorrect]
-
-        '''
-        代码长度单轴散点图
-        '''
-        return render(request, self.template_name, {'times': times,
+        data = eval(contest.visualization)
+        if len(str(data)) < 5:
+            return redirect(reverse('contest:list'))
+        return render(request, self.template_name, {'times': data[0],
                                                     'contest': contest,
-                                                    'n1': n1,
-                                                    'length1': length1,
-                                                    'step1': step1,
-                                                    'start_time': start_time,
-                                                    'correct_submission': correct_submission,
-                                                    'all_submission': all_submission,
-                                                    'average_score': average_score,
-                                                    'correct_radio': correct_radio,
-                                                    'problem_name': problem_name,
-                                                    'max_submission_times': max_submission_times,
-                                                    'all_pie_chart': all_pie_chart,
-                                                    'code_length_data': code_length_data,
-                                                    'scatter_chart_problem_id': scatter_chart_problem_id
+                                                    'n1': data[2],
+                                                    'length1': data[3],
+                                                    'step1': data[4],
+                                                    'start_time': contest.start_time,
+                                                    'correct_submission': data[6],
+                                                    'all_submission': data[7],
+                                                    'average_score': data[8],
+                                                    'correct_radio': data[9],
+                                                    'problem_name': data[10],
+                                                    'max_submission_times': data[11],
+                                                    'all_pie_chart': data[12],
+                                                    'code_length_data': data[13],
+                                                    'scatter_chart_problem_id': data[14]
                                                     })
