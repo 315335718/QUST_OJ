@@ -208,7 +208,8 @@ class CreateStandingsAndVisualizationView(View):
             return redirect(reverse('contest:list'))
         contest_participant = contest.contestparticipant_set.all().select_related('contest', 'user')
         contest_problem = contest.contestproblem_set.all().select_related('contest', 'problem')
-        submissions = contest.submission_set.all().select_related('contest', 'problem', 'author').order_by('create_time')
+        submissions = contest.submission_set.all().select_related('contest', 'problem', 'author').order_by(
+            'create_time')
         '''
         榜单
         '''
@@ -310,7 +311,6 @@ class CreateStandingsAndVisualizationView(View):
             rank_list.append(one)
         rank_list.sort(key=lambda x: x[2], reverse=True)
         contest.standings = str(rank_list)
-        contest.save(update_fields=['standings'])
         '''
         可视化分析
         '''
@@ -411,7 +411,7 @@ class CreateStandingsAndVisualizationView(View):
                 scatter_chart_problem_id]
         contest.visualization = str(data)
         print(contest.visualization)
-        contest.save(update_fields=['visualization'])
+        contest.save(update_fields=['standings', 'visualization'])
         return redirect(reverse('contest:standings', kwargs={'pk': contest.id}))
 
 
@@ -434,8 +434,9 @@ class StandingsView(View):
         problem_score = get_problem_score(contest)
         width = n * 120 + 570
         return render(request, self.template_name,
-                      {'rank_list': rank_list, 'contest': contest, 'user': self.request.user, \
-                       'problem_score': problem_score, 'index': index, 'width': width})
+                      {'rank_list': rank_list, 'contest': contest, 'user': self.request.user, 'index': index, \
+                       'problem_score': problem_score, 'width': width, 'user_id': self.request.user.id, \
+                       'flag': self.request.user.is_superuser})
 
 
 class OutputStandingsToExcelView(View):

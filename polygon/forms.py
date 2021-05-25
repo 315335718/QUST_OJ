@@ -112,7 +112,8 @@ class UpdateCasesForm(forms.Form):
 class UpdateContestForm(forms.ModelForm):
     class Meta:
         model = Contest
-        exclude = ['problems', 'participants', 'managers', 'create_time', 'standings_to_student']
+        exclude = ['problems', 'participants', 'managers', 'create_time', 'standings_to_student', 'standings', \
+                   'visualization']
 
     field_order = ['title', 'description', 'contest_type', 'start_time', 'end_time', 'access_level', 'max_try',\
                    'invitation_code', 'is_time_score', 'time_score_wait', 'is_best_count']

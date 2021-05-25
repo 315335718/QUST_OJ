@@ -40,11 +40,23 @@
                 {% for ele in rank_list %}
                     <tr style="height: 50px">
                         <td>{{ loop.index }}</td>
-                        <td class="submit_username" style="width: 170px">{{ ele[0][0] }}</td>
-                        {% if ele[0][1] %}
-                            <td class="submit_username" style="width: 110px">{{ ele[0][1] }}</td>
+                        {% if flag %}
+                            <td class="submit_username" style="width: 170px">{{ ele[0][0] }}</td>
+                            {% if ele[0][1] %}
+                                <td class="submit_username" style="width: 110px">{{ ele[0][1] }}</td>
+                            {% else %}
+                                <td class="submit_username" style="width: 110px">无</td>
+                            {% endif %}
+                        {% elif user_id == ele[0][2] %}
+                            <td class="submit_username" style="width: 170px; background-color: #dff9fb;">{{ ele[0][0] }}</td>
+                            {% if ele[0][1] %}
+                                <td class="submit_username" style="width: 110px; background-color: #dff9fb;">{{ ele[0][1] }}</td>
+                            {% else %}
+                                <td class="submit_username" style="width: 110px; background-color: #dff9fb;">无</td>
+                            {% endif %}
                         {% else %}
-                            <td class="submit_username" style="width: 110px">无</td>
+                            <td class="submit_username" style="width: 170px;">******</td>
+                            <td class="submit_username" style="width: 110px">******</td>
                         {% endif %}
                         <td style="font-weight: bolder; width: 110px;">{{ ele[1] }}</td>
                         <td style="font-weight: bolder; color: #009A08; width: 90px;">{{ ele[2] | round(2) }}</td>
