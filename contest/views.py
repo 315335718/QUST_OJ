@@ -206,10 +206,14 @@ class CreateStandingsAndVisualizationView(View):
         contest = Contest.objects.get(id=pk)
         if not request.user.is_superuser:
             return redirect(reverse('contest:list'))
-        contest_participant = contest.contestparticipant_set.all().select_related('contest', 'user')
-        contest_problem = contest.contestproblem_set.all().select_related('contest', 'problem')
-        submissions = contest.submission_set.all().select_related('contest', 'problem', 'author').order_by(
-            'create_time')
+        contest_participant = contest.contestparticipant_set.all().select_related('contest', 'user'). \
+            defer('contest__standings', 'contest__visualization')
+        contest_problem = contest.contestproblem_set.all().select_related('contest', 'problem'). \
+            defer('contest__standings', 'contest__visualization')
+        submissions = contest.submission_set.all().select_related('contest', 'problem', 'author'). \
+            only('contest_id', 'problem_id', 'author_id', 'create_time', 'code', 'status', 'status_percent', \
+                 'contest__time_score_wait', 'contest__is_time_score', 'contest__start_time', 'contest__end_time' \
+                 ).order_by('create_time')
         '''
         榜单
         '''
@@ -274,23 +278,23 @@ class CreateStandingsAndVisualizationView(View):
                 rank[uid][2] += new_score - old_score
 
             # 可视化分析
-            cur_id = it.problem_id
-            all_count[cur_id] += 1
-            if it.status_score >= 99.99:
-                correct_count[cur_id] += 1
+            all_count[pid] += 1
+            if it.status_percent >= 99.99:
+                correct_count[pid] += 1
                 cur_length = len(it.code)
                 # 统计代码长度数量
-                if cur_length not in code_length[cur_id]:
-                    code_length[cur_id][cur_length] = 0
-                code_length[cur_id][cur_length] += 1
-                ok_submissions[cur_id].append(cur_length)  # 满分的加到每个题目的submission
-            elif it.status_score > 0:
-                has_correct_count[cur_id] += 1
+                if cur_length not in code_length[pid]:
+                    code_length[pid][cur_length] = 0
+                code_length[pid][cur_length] += 1
+                ok_submissions[pid].append(cur_length)  # 满分的加到每个题目的submission
+                sum_score[pid] += it.status_percent
+            elif it.status_percent > 0:
+                has_correct_count[pid] += 1
+                sum_score[pid] += it.status_percent
+            elif it.status == 2:
+                compile_error_count[pid] += 1
             else:
-                incorrect_count[cur_id] += 1
-            if it.status == 2:
-                compile_error_count[cur_id] += 1
-            sum_score[cur_id] += it.status_score
+                incorrect_count[pid] += 1
 
         rank_list = []
         for it in contest_participant:
@@ -324,15 +328,16 @@ class CreateStandingsAndVisualizationView(View):
         delta = timedelta(seconds=step1)
         submissions_len = len(submissions)
         while cur_time <= end_time:
-            if p < submissions_len and cur_time <= submissions[p].create_time <= cur_time + delta:
+            right_time = cur_time + delta
+            if p < submissions_len and cur_time <= submissions[p].create_time <= right_time:
                 cnt = 0
-                while p < submissions_len and cur_time <= submissions[p].create_time <= cur_time + delta:
+                while p < submissions_len and cur_time <= submissions[p].create_time <= right_time:
                     cnt += 1
                     p += 1
                 times.append(cnt)
             else:
                 times.append(0)
-            cur_time += delta
+            cur_time = right_time
         # 提交信息折线柱状图、评测状态饼状图
         for it in contest_problem:
             pro_name[it.problem_id] = str(it.problem_id) + "." + it.problem.title
@@ -371,10 +376,10 @@ class CreateStandingsAndVisualizationView(View):
             # 处理代码长度散点图
             ok_submissions[i].sort()
             s_len = len(ok_submissions[i])
-            k = 0
-            j = 0
             max_code_len_cnt = max(code_length[i].values())
             min_code_len_cnt = min(code_length[i].values())
+            k = 0
+            j = 0
             while j < s_len:
                 while k < ok_submissions[i][j]:
                     k += 1
@@ -410,7 +415,6 @@ class CreateStandingsAndVisualizationView(View):
                 correct_radio, problem_name, max_submission_times, all_pie_chart, code_length_data,
                 scatter_chart_problem_id]
         contest.visualization = str(data)
-        print(contest.visualization)
         contest.save(update_fields=['standings', 'visualization'])
         return redirect(reverse('contest:standings', kwargs={'pk': contest.id}))
 
