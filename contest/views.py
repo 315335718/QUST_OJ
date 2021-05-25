@@ -428,9 +428,9 @@ class StandingsView(View):
         contest_problem = contest.contestproblem_set.all()
         n = len(contest_problem)
         index = n * [1]
-        rank_list = eval(contest.standings)
-        if len(str(rank_list)) < 5:
+        if len(contest.standings) < 5:
             return redirect(reverse('contest:list'))
+        rank_list = eval(contest.standings)
         problem_score = get_problem_score(contest)
         width = n * 120 + 570
         return render(request, self.template_name,
@@ -535,9 +535,9 @@ class VisualizationView(View):
         contest = Contest.objects.get(id=pk)
         if not request.user.is_superuser and contest.status != 1:
             return redirect(reverse('contest:list'))
-        data = eval(contest.visualization)
-        if len(str(data)) < 5:
+        if len(contest.visualization) < 5:
             return redirect(reverse('contest:list'))
+        data = eval(contest.visualization)
         return render(request, self.template_name, {'times': data[0],
                                                     'contest': contest,
                                                     'n1': data[2],
