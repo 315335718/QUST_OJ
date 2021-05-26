@@ -113,8 +113,8 @@ class WxLoginView(APIView):
             'username': username,
             'password': wx_password,
         }
-        # res = requests.post('https://www.qustoj.cn/api/token/', data=data)
-        res = requests.post('http://127.0.0.1:8000/api/token/', data=data)
+        res = requests.post('https://www.qustoj.cn/api/token/', data=data)
+        # res = requests.post('http://127.0.0.1:8000/api/token/', data=data)
         token = res.json()
         contents = {
             'flag': 1,
