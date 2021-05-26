@@ -27,6 +27,7 @@ urlpatterns = [
     # 测试
     path('contest_list/', contest.ContestListView.as_view(), name='contest_list'),
     path('contest_dashboard/', contest.ContestDashboardView.as_view(), name='contest_dashboard'),
+    path('contest_rank/', contest.ContestRankListView.as_view(), name='contest_rank'),
     # 提交信息
     path('my_submissions/', submission.MySubmissionsView.as_view(), name='my_submissions'),
     # 讨论区

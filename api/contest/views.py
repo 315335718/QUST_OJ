@@ -80,4 +80,18 @@ class ContestRankListView(APIView):
             return Response({'flag': 0, 'message': '系统错误: ' + str(str(e).encode())})
         if len(contest.standings) < 5:
             return Response({'flag': 0, 'message': '榜单未生成'})
+        rank_list = eval(contest.standings)
+        rank = 0
+        flag = 0
+        res = ''
+        for it in rank_list:
+            rank += 1
+            if it[0][2] == user_id:
+                flag = 1
+                res = it
+                break
+        if flag == 1:
+            return Response({'flag': 1, 'message': '请求成功', 'rank': rank, 'rank_info': res})
+        else:
+            return Response({'flag': 0, 'message': '请等待榜单生成'})
 
