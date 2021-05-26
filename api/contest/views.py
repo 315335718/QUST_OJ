@@ -64,3 +64,20 @@ class ContestDashboardView(APIView):
         problem_score = get_problem_score(contest)
         return Response({'flag': 1, 'message': '正常访问', 'problem_list': serializer.data, 'problem_score': problem_score, \
                          'status': contest.status})
+
+
+class ContestRankListView(APIView):
+    # permission_classes = (IsAuthenticated,)
+    def get(self, request):
+        user_id = request.GET.get('user_id', 0)
+        cid = request.GET.get('cid', 0)
+        if int(user_id) == 0 or int(cid) == 0:
+            return Response({'flag': 0, 'message': '检查是否登录或网络连接是否正常'})  # 检查是否未登录
+        try:
+            user = User.objects.get(pk=user_id)
+            contest = Contest.objects.get(id=cid)
+        except Exception as e:
+            return Response({'flag': 0, 'message': '系统错误: ' + str(str(e).encode())})
+        if len(contest.standings) < 5:
+            return Response({'flag': 0, 'message': '榜单未生成'})
+

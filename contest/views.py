@@ -86,7 +86,8 @@ class DashboardView(View):
         contest = Contest.objects.get(id=pk)
         if not request.user.is_superuser and contest.status < 0:
             return redirect(reverse('contest:list'))
-        contest_participant = contest.contestparticipant_set.all().select_related('contest', 'user')
+        contest_participant = contest.contestparticipant_set.all().select_related('contest', 'user'). \
+            only('user__id', 'contest__id')
         participant_id = self.request.user.id
         flag = contest_participant.filter(user_id=participant_id).exists()
         if not flag:
@@ -96,7 +97,8 @@ class DashboardView(View):
                 return redirect(reverse('contest:invitation_code', args=(contest.id,)))
             else:
                 return redirect('/reject/')
-        contest_problem = contest.contestproblem_set.all().select_related('contest', 'problem')
+        contest_problem = contest.contestproblem_set.all().select_related('contest', 'problem'). \
+            only('problem__id', 'problem__title', 'contest__id')
         problems = []
         for it in contest_problem:
             problems.append(it.problem)
@@ -132,7 +134,8 @@ class ContestProblemView(View):
         if not contest_participant.filter(user_id=participant_id).exists():
             redirect('/reject/')
         problem_score = get_problem_score(contest)
-        contest_problem = contest.contestproblem_set.all().select_related('contest', 'problem')
+        contest_problem = contest.contestproblem_set.all().select_related('contest', 'problem'). \
+            only('problem__id', 'problem__title', 'contest__id')
         problems = []
         for it in contest_problem:
             problems.append(it.problem)
@@ -162,8 +165,9 @@ class ContestMySubmissionsView(View):
         #     redirect('/reject/')
         user = self.request.user
         queryset = user.submission_set.filter(contest_id=pk)[:30].select_related('contest', 'problem', 'author'). \
-            only('pk', 'author_id', 'problem_id', 'contest_id', 'create_time', 'judge_end_time', 'status', \
-                 'status_percent', 'status_message')
+            only('contest_id', 'problem_id', 'author_id', 'create_time', 'code', 'status', 'status_percent', \
+                 'contest__time_score_wait', 'contest__is_time_score', 'contest__start_time', 'contest__end_time', \
+                 'judge_end_time', 'status_message', 'problem__title', 'author__username')
         problem_score = get_problem_score(contest)
         contents = {
             'flag': 1,
@@ -185,9 +189,10 @@ class ContestSubmissionsView(View):
         contest = Contest.objects.get(pk=pk)
         if not request.user.is_superuser and contest.status < 0:
             return redirect(reverse('contest:list'))
-        queryset = contest.submission_set.all()[:50].select_related('contest', 'problem', 'author'). \
-            only('pk', 'author_id', 'problem_id', 'contest_id', 'create_time', 'judge_end_time', 'status', \
-                 'status_percent', 'status_message')
+        queryset = contest.submission_set.all().select_related('contest', 'problem', 'author'). \
+            only('contest_id', 'problem_id', 'author_id', 'create_time', 'code', 'status', 'status_percent', \
+                 'contest__time_score_wait', 'contest__is_time_score', 'contest__start_time', 'contest__end_time', \
+                 'judge_end_time', 'status_message', 'problem__title', 'author__username')
         problem_score = get_problem_score(contest)
         contents = {
             'flag': 0,
@@ -207,13 +212,13 @@ class CreateStandingsAndVisualizationView(View):
         if not request.user.is_superuser:
             return redirect(reverse('contest:list'))
         contest_participant = contest.contestparticipant_set.all().select_related('contest', 'user'). \
-            defer('contest__standings', 'contest__visualization')
+            only('user__id', 'user__username', 'user__name', 'contest__id')
         contest_problem = contest.contestproblem_set.all().select_related('contest', 'problem'). \
-            defer('contest__standings', 'contest__visualization')
+            only('problem__id', 'problem__title', 'contest__id')
         submissions = contest.submission_set.all().select_related('contest', 'problem', 'author'). \
             only('contest_id', 'problem_id', 'author_id', 'create_time', 'code', 'status', 'status_percent', \
-                 'contest__time_score_wait', 'contest__is_time_score', 'contest__start_time', 'contest__end_time' \
-                 ).order_by('create_time')
+                 'contest__time_score_wait', 'contest__is_time_score', 'contest__start_time', 'contest__end_time', \
+                 'problem__title', 'author__username').order_by('create_time')
         '''
         榜单
         '''

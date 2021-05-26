@@ -18,7 +18,7 @@ class ContestManager(models.Manager):
                 q |= models.Q(managers=filter_user)
         if contest_type is not None:
             q &= models.Q(contest_type=contest_type)
-        contest_list = self.get_queryset().prefetch_related('managers'). \
+        contest_list = self.get_queryset().defer('standings', 'visualization').prefetch_related('managers'). \
             annotate(Count('participants', distinct=True)).filter(q)
 
         if sorting_by_id:
