@@ -9,12 +9,15 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth import authenticate
 from django.views import View
 # from django.http import HttpResponse
 
 from account.models import User
 from problem.models import Problem
+from contest.models import ContestManager, Contest, ContestParticipant, ContestProblem
 from submission.models import Submission
+from schoolclass.models import SchoolClass
 from QUST_OJ.settings import WX_APP_ID, WX_APP_SECRET
 
 
@@ -83,7 +86,7 @@ class TestView2(APIView):
 def get_or_create_username_and_id(openid, avatar_url):
     if User.objects.filter(wx_openid=openid).exists():
         user = User.objects.get(wx_openid=openid)
-        return user.username, user.id
+        return user.username, user.id, user.wx_password
     else:
         ticks = int(time.time())
         random_str = str(ticks) + chr(ord('a') + random.randint(0, 25)) + chr(ord('a') + random.randint(0, 25))
@@ -91,8 +94,8 @@ def get_or_create_username_and_id(openid, avatar_url):
         password = make_password(openid)
         fake_email = random_str + '@' + 'qq.com'
         user = User.objects.create(username=username, password=password, email=fake_email, wx_openid=openid, \
-                                   wx_avatar_url=avatar_url)
-        return user.username, user.id
+                                   wx_avatar_url=avatar_url, wx_password=openid)
+        return user.username, user.id, user.wx_password
 
 
 class WxLoginView(APIView):
@@ -105,17 +108,57 @@ class WxLoginView(APIView):
         if 'errcode' in res.keys():
             return Response({'flag': 0})
         openid = res['openid']
-        username, user_id = get_or_create_username_and_id(openid, avatar_url)
+        username, user_id, wx_password = get_or_create_username_and_id(openid, avatar_url)
         data = {
             'username': username,
-            'password': openid,
+            'password': wx_password,
         }
-        res = requests.post('https://www.qustoj.cn/api/token/', data=data)
+        # res = requests.post('https://www.qustoj.cn/api/token/', data=data)
+        res = requests.post('http://127.0.0.1:8000/api/token/', data=data)
         token = res.json()
         contents = {
             'flag': 1,
             'token': token,
             'user_id': user_id,
         }
-        print(contents)
         return Response(contents)
+
+
+class WxBindingView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def post(self, request):
+        user_id = request.POST.get('user_id', 0)
+        if int(user_id) == 0:
+            return Response({'flag': 0, 'message': '检查是否登录或网络连接是否正常'})  # 检查是否未登录
+        now_user = User.objects.get(id=user_id)
+        username = request.POST.get('username', '')
+        password = request.POST.get('password', '')
+        if len(username) < 1 or len(password) < 1:
+            return Response({'flag': 0, 'message': '缺少用户名或密码'})
+        try:
+            has_user = User.objects.get(username=username)
+        except:
+            return Response({'flag': 0, 'message': '该用户不存在'})
+        user = authenticate(username=username, password=password)
+        if user is None:
+            return Response({'flag': 0, 'message': '用户名或密码错误'})
+        try:
+            has_user.wx_openid = now_user.wx_openid
+            has_user.wx_avatar_url = now_user.wx_avatar_url
+            has_user.wx_password = password
+            ContestParticipant.objects.filter(user_id=now_user.id).update(user_id=has_user.id)
+            SchoolClass.objects.filter(tercher_id=now_user.id).update(tercher_id=has_user.id)
+            Submission.objects.filter(author_id=now_user.id).update(author_id=has_user.id)
+            data = {
+                'username': has_user.username,
+                'password': now_user.wx_openid,
+            }
+            now_user.wx_openid = ''
+            now_user.wx_avatar_url = ''
+            now_user.save(update_fields=['wx_openid', 'wx_avatar_url'])
+            has_user.save(update_fields=['wx_openid', 'wx_avatar_url', 'wx_password'])
+            res = requests.post('https://www.qustoj.cn/api/token/', data=data)
+            token = res.json()
+        except Exception as e:
+            return Response({'flag': 0, 'message': '系统错误: ' + str(str(e).encode())})
+        return Response({'flag': 0, 'message': '操作成功', 'token': token, 'user_id': has_user.id})
