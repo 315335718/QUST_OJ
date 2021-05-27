@@ -18,6 +18,7 @@ from problem.models import Problem
 from contest.models import ContestManager, Contest, ContestParticipant, ContestProblem
 from submission.models import Submission
 from schoolclass.models import SchoolClass
+from comment.models import Article, Comment
 from QUST_OJ.settings import WX_APP_ID, WX_APP_SECRET
 
 
@@ -149,6 +150,8 @@ class WxBindingView(APIView):
             ContestParticipant.objects.filter(user_id=now_user.id).update(user_id=has_user.id)
             SchoolClass.objects.filter(tercher_id=now_user.id).update(tercher_id=has_user.id)
             Submission.objects.filter(author_id=now_user.id).update(author_id=has_user.id)
+            Article.objects.filter(author_id=now_user.id).update(author_id=has_user.id)
+            Comment.objects.filter(author_id=now_user.id).update(author_id=has_user.id)
             data = {
                 'username': has_user.username,
                 'password': now_user.wx_openid,
@@ -161,4 +164,4 @@ class WxBindingView(APIView):
             token = res.json()
         except Exception as e:
             return Response({'flag': 0, 'message': '系统错误: ' + str(str(e).encode())})
-        return Response({'flag': 0, 'message': '操作成功', 'token': token, 'user_id': has_user.id})
+        return Response({'flag': 1, 'message': '操作成功', 'token': token, 'user_id': has_user.id})
