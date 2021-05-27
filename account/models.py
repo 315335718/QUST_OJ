@@ -49,4 +49,4 @@ class User(AbstractUser):
     wx_password = models.CharField("微信密码", max_length=192, blank=True, null=True, default=None)
 
     def __str__(self):
-        return self.username
+        return str(self.id) + '. ' + self.username
