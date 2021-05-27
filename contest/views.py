@@ -189,7 +189,7 @@ class ContestSubmissionsView(View):
         contest = Contest.objects.get(pk=pk)
         if not request.user.is_superuser and contest.status < 0:
             return redirect(reverse('contest:list'))
-        queryset = contest.submission_set.all().select_related('contest', 'problem', 'author'). \
+        queryset = contest.submission_set.all()[:50].select_related('contest', 'problem', 'author'). \
             only('contest_id', 'problem_id', 'author_id', 'create_time', 'code', 'status', 'status_percent', \
                  'contest__time_score_wait', 'contest__is_time_score', 'contest__start_time', 'contest__end_time', \
                  'judge_end_time', 'status_message', 'problem__title', 'author__username')

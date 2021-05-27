@@ -27,7 +27,7 @@ class creat_articalView(APIView):
 class UserSerSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'email')
+        fields = ('id', 'username', 'wx_avatar_url')
 
 
 class articalSerializer(serializers.ModelSerializer):
@@ -40,7 +40,7 @@ class articalSerializer(serializers.ModelSerializer):
 class list_articalView(APIView):
     def get(self, request):
         length = int(request.GET.get('length', 0))
-        alist = Article.objects.all().select_related('author').only('author_id', 'author__email')
+        alist = Article.objects.all().select_related('author').only('author__id', 'author__wx_avatar_url')
         alist = alist.order_by("-update_time")
         alist = alist[length: length+5]
         serializer = articalSerializer(alist, many=True)
@@ -59,7 +59,7 @@ class search_articaltView(APIView):
     def post(self, request):
         text = request.POST.get('text', 1)
         alist = Article.objects.filter(description__icontains=text)
-        alist = alist.order_by("-count","-update_time")
+        alist = alist.order_by("-count", "-update_time")
         serializer = articalSerializer(alist, many=True)
         return Response(serializer.data)
 
@@ -67,7 +67,7 @@ class search_articaltView(APIView):
 class artical_detailView(APIView):
     def get(self, request):
         id = int(request.GET.get('id', 1))
-        alist = Article.objects.filter(id=id).select_related('author').only('author_id', 'author__email')
+        alist = Article.objects.filter(id=id).select_related('author').only('author_id', 'author__wx_avatar_url')
         serializer = articalSerializer(alist, many=True)
         return Response(serializer.data)
 
@@ -89,7 +89,7 @@ class comment_creatView(APIView):
 class UserSerSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'email')
+        fields = ('id', 'username', 'wx_avatar_url')
 
 
 class SCommentSerializer(serializers.ModelSerializer):
@@ -116,12 +116,12 @@ class comment_listView(APIView):
         for it in comments:
             if it.to_comment == None:
                 one = ['一级评论', it.id, it.description, it.create_time, {'user_id': it.author.id, 'username': it.author.\
-                    username, 'url': it.author.email}]
+                    username, 'url': it.author.wx_avatar_url}]
                 res[it.id] = [one]
             else:
                 one = [it.id, it.description, it.create_time, {'user_id': it.author.id, 'username': it.author.\
-                    username, 'url': it.author.email}, {'user_id': it.to_comment.author.id, 'username': it.to_comment.\
-                    author.username, 'url': it.to_comment.author.email}]
+                    username, 'url': it.author.wx_avatar_url}, {'user_id': it.to_comment.author.id, 'username': it.to_comment.\
+                    author.username, 'url': it.to_comment.author.wx_avatar_url}]
                 if it.to_small_comment == 0:
                     one.append(2)
                     res[it.to_comment.id].append(one)
