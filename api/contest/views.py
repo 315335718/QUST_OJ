@@ -72,7 +72,7 @@ class ContestDashboardView(APIView):
             res = ''
             for it in rank_list:
                 rank += 1
-                if it[0][2] == user_id:
+                if it[0][2] == int(user_id):
                     st_flag = 1
                     res = it
                     break
