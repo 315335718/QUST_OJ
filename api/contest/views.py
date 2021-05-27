@@ -62,8 +62,22 @@ class ContestDashboardView(APIView):
             problem_list.append(it.problem)
         serializer = ProblemSerializer(problem_list, many=True)
         problem_score = get_problem_score(contest)
+        st_flag = 1
+        if len(contest.standings) < 5:
+            st_flag = 0
+        else:
+            st_flag = 0
+            rank_list = eval(contest.standings)
+            rank = 0
+            res = ''
+            for it in rank_list:
+                rank += 1
+                if it[0][2] == user_id:
+                    st_flag = 1
+                    res = it
+                    break
         return Response({'flag': 1, 'message': '正常访问', 'problem_list': serializer.data, 'problem_score': problem_score, \
-                         'status': contest.status})
+                         'status': contest.status, 'rank': rank, 'rank_info': res, 'st_flag': st_flag})
 
 
 class ContestRankListView(APIView):
