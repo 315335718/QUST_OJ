@@ -39,12 +39,18 @@ class articalSerializer(serializers.ModelSerializer):
 
 class list_articalView(APIView):
     def get(self, request):
+        user_id = request.GET.get('user_id', 0)
+        if int(user_id) > 0:
+            user = User.objects.get(id=user_id)
+            stf = user.wx_stuff
+        else:
+            stf = 0
         length = int(request.GET.get('length', 0))
         alist = Article.objects.all().select_related('author').only('author__id', 'author__wx_avatar_url')
         alist = alist.order_by("-update_time")
         alist = alist[length: length+5]
         serializer = articalSerializer(alist, many=True)
-        return Response(serializer.data)
+        return Response({'list': serializer.data, 'stf': stf})
 
 
 class artical_listCountView(APIView):
@@ -66,10 +72,16 @@ class search_articaltView(APIView):
 
 class artical_detailView(APIView):
     def get(self, request):
+        user_id = request.GET.get('user_id', 0)
+        if int(user_id) > 0:
+            user = User.objects.get(id=user_id)
+            stf = user.wx_stuff
+        else:
+            stf = 0
         id = int(request.GET.get('id', 1))
         alist = Article.objects.filter(id=id).select_related('author').only('author_id', 'author__wx_avatar_url')
         serializer = articalSerializer(alist, many=True)
-        return Response(serializer.data)
+        return Response({'list': serializer.data, 'stf': stf})
 
 
 class comment_creatView(APIView):
