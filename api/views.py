@@ -95,7 +95,7 @@ def get_or_create_username_and_id(openid, avatar_url):
         password = make_password(openid)
         fake_email = random_str + '@' + 'qq.com'
         user = User.objects.create(username=username, password=password, email=fake_email, wx_openid=openid, \
-                                   wx_avatar_url=avatar_url, wx_password=openid)
+                                   wx_avatar_url=avatar_url, wx_password=openid, wx_stuff=1)
         return user.username, user.id, user.wx_password
 
 
