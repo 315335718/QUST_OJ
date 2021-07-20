@@ -448,6 +448,7 @@ class StandingsView(View):
                        'flag': self.request.user.is_superuser})
 
 
+'''导出榜单'''
 class OutputStandingsToExcelView(View):
 
     def get(self, request, *args, **kwargs):
@@ -455,64 +456,141 @@ class OutputStandingsToExcelView(View):
             return HttpResponseRedirect('/')
         pk = self.kwargs['pk']
         contest = Contest.objects.get(id=pk)
-        if not request.user.is_superuser and contest.status != 1:
+        if not request.user.is_superuser:
             return redirect(reverse('contest:list'))
-        contest_participant = contest.contestparticipant_set.all()
-        contest_problem = contest.contestproblem_set.all().select_related('contest', 'problem')
-        submissions = contest.submission_set.all().select_related('contest', 'problem', 'author')
-        result = []
+        contest_participant = contest.contestparticipant_set.all().select_related('contest', 'user'). \
+            only('user__id', 'user__username', 'user__name', 'contest__id')
+        contest_problem = contest.contestproblem_set.all().select_related('contest', 'problem'). \
+            only('problem__id', 'problem__title', 'contest__id')
+        submissions = contest.submission_set.all().select_related('contest', 'problem', 'author'). \
+            only('contest_id', 'problem_id', 'author_id', 'create_time', 'code', 'status', 'status_percent', \
+                 'contest__time_score_wait', 'contest__is_time_score', 'contest__start_time', 'contest__end_time', \
+                 'problem__title', 'author__username').order_by('create_time')
+        '''
+        榜单
+        '''
+        max_id = 0  # 问题的最大id
+        index = []  # 有效数组下标
+        for it in contest_problem:
+            max_id = max(max_id, it.problem.id)
+            index.append(it.problem.id)
+        max_id += 1
+        rank = dict()
         for it in contest_participant:
-            participant = it.user
-            one = dict()
-            one['user'] = participant
-            one['score'] = 0
-            one['total'] = 0
-            for ij in contest_problem:
-                problem = ij.problem
-                max_score = 0
-                sum_score = 0
-                flag = 0
-                count = 0
-                for submission in submissions:
-                    if submission.author_id == participant.id and submission.problem_id == problem.id:
-                        count += 1
-                        if submission.status_percent > 99.9:
-                            flag = 1
-                        time_score = 100
-                        time_score_delta = timedelta(minutes=contest.time_score_wait)
-                        if contest.is_time_score:
-                            time_delta = submission.create_time - contest.start_time
-                            if time_delta > time_score_delta and contest.length != time_score_delta:
-                                time_score = 100 * ((contest.end_time - submission.create_time) / (
-                                        contest.length - time_score_delta))
-                        now_score = submission.status_percent * 0.6 + submission.status_percent * 0.4 * time_score / 100
-                        if now_score > max_score:
-                            max_score = now_score
-                        sum_score += now_score
-                if contest.is_best_counts:
-                    one['score'] += max_score
-                else:
-                    if count != 0:
-                        one['score'] += sum_score / count
-                if flag:
-                    one['total'] += 1
-            result.append(one)
-        result.sort(key=lambda x: x['score'], reverse=True)
+            problem_score = [0] * max_id
+            problem_ac = [0] * max_id
+            total_score = 0
+            total_ac = 0
+            submit_count = [0] * max_id
+            time_penalty = [0] * max_id
+            score_code = [""] * max_id  # 最高分代码
+            one = [problem_score, problem_ac, total_score, total_ac, submit_count, time_penalty, score_code]
+            rank[it.user_id] = one
+        st = contest.start_time  # 测试开始时间
+        ed = contest.end_time  # 测试结束时间
+
+        for it in submissions:
+            if it.create_time < st or it.create_time > ed:
+                continue
+            uid = it.author_id
+            pid = it.problem_id
+            rank[uid][4][pid] += 1
+            if it.status_percent > 99.9:
+                if rank[uid][1][pid] == 0:
+                    rank[uid][3] += 1
+                    rank[uid][1][pid] = 1
+            time_score = 100
+            time_score_delta = timedelta(minutes=contest.time_score_wait)
+            if contest.is_time_score:
+                time_delta = it.create_time - contest.start_time
+                if time_delta > time_score_delta and contest.length != time_score_delta:
+                    time_score = 100 * ((contest.end_time - it.create_time) / (contest.length - time_score_delta))
+            new_score = it.status_percent * 0.6 + it.status_percent * 0.4 * time_score / 100
+            old_score = rank[uid][0][pid]
+            if new_score > old_score:
+                rank[uid][0][pid] = new_score
+                rank[uid][5][pid] = it.status_percent - new_score
+                rank[uid][2] += new_score - old_score
+                rank[uid][6][pid] = it.code
+
+        rank_list = []
+        for it in contest_participant:
+            cur = rank[it.user_id]
+            problem_score = []
+            problem_ac = []
+            submit_count = []
+            total_score = cur[2]
+            total_ac = cur[3]
+            time_penalty = []
+            score_code = []
+            for i in index:
+                problem_score.append(cur[0][i])
+                problem_ac.append(cur[1][i])
+                submit_count.append(cur[4][i])
+                time_penalty.append(cur[5][i])
+                score_code.append(cur[6][i])
+            user = [it.user.username, it.user.name, it.user_id]
+            one = [user, total_ac, total_score, problem_score, submit_count, time_penalty, problem_ac, score_code]
+            rank_list.append(one)
+        rank_list.sort(key=lambda x: x[2], reverse=True)
 
         data = xlwt.Workbook(encoding='utf-8')
         sheet = data.add_sheet('sheet1', cell_overwrite_ok=True)
-        sheet.write(0, 0, "学号")
-        sheet.write(0, 1, "姓名")
-        sheet.write(0, 2, "做对题数")
-        sheet.write(0, 3, "最终成绩")
-        thisrow = 1
-        for ele in result:
-            sheet.write(thisrow, 0, ele['user'].username)
-            sheet.write(thisrow, 1, ele['user'].name)
-            sheet.write(thisrow, 2, ele['total'])
-            sheet.write(thisrow, 3, ele['score'])
-            thisrow += 1
 
+        # 单元格格式
+        alignment = xlwt.Alignment()  # Create Alignment
+        # May be: HORZ_GENERAL, HORZ_LEFT, HORZ_CENTER, HORZ_RIGHT, HORZ_FILLED, HORZ_JUSTIFIED, HORZ_CENTER_ACROSS_SEL, HORZ_DISTRIBUTED
+        alignment.horz = xlwt.Alignment.HORZ_CENTER
+        # May be: VERT_TOP, VERT_CENTER, VERT_BOTTOM, VERT_JUSTIFIED, VERT_DISTRIBUTED
+        alignment.vert = xlwt.Alignment.VERT_CENTER
+        alignment.wrap = 1  # 自动换行
+        style = xlwt.XFStyle()  # Create Style
+        style.alignment = alignment  # Add Alignment to Style
+
+        alignment2 = xlwt.Alignment()  # Create Alignment
+        # May be: HORZ_GENERAL, HORZ_LEFT, HORZ_CENTER, HORZ_RIGHT, HORZ_FILLED, HORZ_JUSTIFIED, HORZ_CENTER_ACROSS_SEL, HORZ_DISTRIBUTED
+        alignment2.horz = xlwt.Alignment.HORZ_LEFT
+        # May be: VERT_TOP, VERT_CENTER, VERT_BOTTOM, VERT_JUSTIFIED, VERT_DISTRIBUTED
+        alignment2.vert = xlwt.Alignment.VERT_CENTER
+        alignment2.wrap = 1  # 自动换行
+        style2 = xlwt.XFStyle()  # Create Style
+        style2.alignment = alignment2  # Add Alignment to Style
+
+        sheet.col(0).width = 2000
+        sheet.col(1).width = 4000
+        sheet.col(2).width = 4000
+        sheet.col(3).width = 2000
+        sheet.col(4).width = 2000
+        sheet.write(0, 0, "排名", style)
+        sheet.write(0, 1, "用户名", style)
+        sheet.write(0, 2, "姓名", style)
+        sheet.write(0, 3, "满分题数", style)
+        sheet.write(0, 4, "总分", style)
+
+        problem_num = len(contest_problem) + 1
+        for i in range(1, problem_num):
+            sheet.col(i + 4).width = 7777
+            sheet.write(0, i + 4, "题目{0}".format(i), style)
+        thisrow = 1
+        for ele in rank_list:
+            sheet.write(thisrow, 0, thisrow, style)
+            sheet.write(thisrow, 1, ele[0][0], style)
+            if ele[0][1] != None:
+                sheet.write(thisrow, 2, ele[0][1], style)
+            else:
+                sheet.write(thisrow, 2, "无", style)
+            sheet.write(thisrow, 3, ele[1], style)
+            sheet.write(thisrow, 4, round(ele[2], 2), style)
+            idx = 0
+            for detail in ele[3]:
+                info = "时间衰减后得分: {2} - {3} = {0}\n尝试次数: {1}\n最高分代码: ({4})".format(round(detail, 2),
+                                                                                ele[4][idx],
+                                                                                round(detail + ele[5][idx], 1),
+                                                                                round(ele[5][idx], 1),
+                                                                                ele[7][idx])
+                sheet.write(thisrow, idx + 5, info, style2)
+                idx += 1
+            thisrow += 1
         ticks = int(time.time())
         excel_dir = str(EXCEL_ROOT)
 
