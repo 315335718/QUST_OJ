@@ -1,3 +1,4 @@
+import re
 import xlwt
 import time
 import random
@@ -449,6 +450,8 @@ class StandingsView(View):
 
 
 '''导出榜单'''
+
+
 class OutputStandingsToExcelView(View):
 
     def get(self, request, *args, **kwargs):
@@ -532,7 +535,7 @@ class OutputStandingsToExcelView(View):
             user = [it.user.username, it.user.name, it.user_id]
             one = [user, total_ac, total_score, problem_score, submit_count, time_penalty, problem_ac, score_code]
             rank_list.append(one)
-        rank_list.sort(key=lambda x: x[2], reverse=True)
+        rank_list.sort(key=lambda x: x[0][0], reverse=True)
 
         data = xlwt.Workbook(encoding='utf-8')
         sheet = data.add_sheet('sheet1', cell_overwrite_ok=True)
@@ -566,14 +569,15 @@ class OutputStandingsToExcelView(View):
         sheet.write(0, 2, "姓名", style)
         sheet.write(0, 3, "满分题数", style)
         sheet.write(0, 4, "总分", style)
+        sheet.write(0, 5, "总分(百分制)", style)
 
         problem_num = len(contest_problem) + 1
         for i in range(1, problem_num):
-            sheet.col(i + 4).width = 7777
-            sheet.write(0, i + 4, "题目{0}".format(i), style)
+            sheet.col(i + 5).width = 7777
+            sheet.write(0, i + 5, "题目{0}".format(i), style)
         thisrow = 1
         for ele in rank_list:
-            sheet.write(thisrow, 0, thisrow, style)
+            sheet.write(thisrow, 0, '***', style)
             sheet.write(thisrow, 1, ele[0][0], style)
             if ele[0][1] != None:
                 sheet.write(thisrow, 2, ele[0][1], style)
@@ -581,14 +585,15 @@ class OutputStandingsToExcelView(View):
                 sheet.write(thisrow, 2, "无", style)
             sheet.write(thisrow, 3, ele[1], style)
             sheet.write(thisrow, 4, round(ele[2], 2), style)
+            sheet.write(thisrow, 5, round(ele[2] / (problem_num - 1), 2), style)
             idx = 0
             for detail in ele[3]:
                 info = "时间衰减后得分: {2} - {3} = {0}\n尝试次数: {1}\n最高分代码: ({4})".format(round(detail, 2),
-                                                                                ele[4][idx],
-                                                                                round(detail + ele[5][idx], 1),
-                                                                                round(ele[5][idx], 1),
-                                                                                ele[7][idx])
-                sheet.write(thisrow, idx + 5, info, style2)
+                                                                                  ele[4][idx],
+                                                                                  round(detail + ele[5][idx], 1),
+                                                                                  round(ele[5][idx], 1),
+                                                                                  ele[7][idx])
+                sheet.write(thisrow, idx + 6, info, style2)
                 idx += 1
             thisrow += 1
         ticks = int(time.time())
@@ -605,6 +610,118 @@ class OutputStandingsToExcelView(View):
         with open(excel_file, 'rb') as f:
             try:
                 download_name = contest.title + '____榜单.xls'
+                response = HttpResponse(f)
+                response['content_type'] = "application/octet-stream"
+                response['Content-Disposition'] = "attachment; filename*=utf-8''{}".format(
+                    escape_uri_path(download_name))
+                return response
+            except Exception:
+                raise Http404
+
+
+class MergeOutputForm(forms.Form):
+    content = forms.CharField(label='请输入测试的id，例如输入: 1,3,4，则合并id为 1、3、4 的成绩，注：逗号为英文逗号')
+
+
+'''导出合并多个测试的榜单'''
+class OutputMergedStandingsToExcelView(View):
+    template_name = 'contest/merge_output.jinja2'
+    form_class = MergeOutputForm
+
+    def get(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return HttpResponseRedirect('/')
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        require = []
+        if form.is_valid():
+            user_input = form.cleaned_data['content']
+            require = list(filter(lambda x: x, re.split(r"[, ]", user_input)))
+        if require == []:
+            return HttpResponseRedirect(reverse('contest:list'))
+        contest = []
+        for id in require:
+            try:
+                contest.append(Contest.objects.get(pk=id))
+            except:
+                raise ValueError("请检查您的输入")
+
+        data = xlwt.Workbook(encoding='utf-8')
+        sheet = data.add_sheet('sheet1', cell_overwrite_ok=True)
+
+        # 单元格格式
+        alignment = xlwt.Alignment()  # Create Alignment
+        # May be: HORZ_GENERAL, HORZ_LEFT, HORZ_CENTER, HORZ_RIGHT, HORZ_FILLED, HORZ_JUSTIFIED, HORZ_CENTER_ACROSS_SEL, HORZ_DISTRIBUTED
+        alignment.horz = xlwt.Alignment.HORZ_CENTER
+        # May be: VERT_TOP, VERT_CENTER, VERT_BOTTOM, VERT_JUSTIFIED, VERT_DISTRIBUTED
+        alignment.vert = xlwt.Alignment.VERT_CENTER
+        alignment.wrap = 1  # 自动换行
+        style = xlwt.XFStyle()  # Create Style
+        style.alignment = alignment  # Add Alignment to Style
+
+        users = dict()
+        users_map_name = dict()
+        contest_name = []
+        cnt = 1
+        for it in contest:
+            contest_name.append(it.title)
+            if len(it.standings) < 5:
+                raise ValueError("请检查是否有测试未生成静态数据")
+            contest_problem = it.contestproblem_set.all()
+            n = len(contest_problem)
+            rank_list = eval(it.standings)
+            for ele in rank_list:
+                user = ele[0][0]
+                if users.get(user) == None:
+                    users[user] = []
+                    users_map_name[user] = ele[0][1]
+                dif = cnt - len(users[user]) - 1
+                for j in range(dif):
+                    users[user].append(0.0)
+                users[user].append(round(ele[2] / n, 2))
+            for it in users.items():
+                if len(it[1]) < cnt:
+                    it[1].append(0.0)
+            cnt += 1
+        sorted_users = sorted(users.keys())
+        sheet.write(0, 0, "学号", style)
+        sheet.write(0, 1, "姓名", style)
+        col = 2
+        for name in contest_name:
+            sheet.write(0, col, name, style)
+            col += 1
+        sheet.write(0, col, "总成绩", style)
+        raw = 1
+        contest_count = len(contest)
+        for user in sorted_users:
+            sheet.write(raw, 0, user, style)
+            sheet.write(raw, 1, users_map_name[user], style)
+            col = 2
+            sum = 0
+            for score in users[user]:
+                sheet.write(raw, col, score, style)
+                sum += score
+                col += 1
+            sheet.write(raw, col, round(sum / contest_count, 2), style)
+            raw += 1
+
+        ticks = int(time.time())
+        excel_dir = str(EXCEL_ROOT)
+
+        del_list = os.listdir(excel_dir)
+        for f in del_list:
+            file_path = os.path.join(excel_dir, f)
+            os.remove(file_path)
+
+        excel_file = excel_dir + '/' + str(ticks) + str(random.randint(1, 100)) + str(random.randint(1, 100)) + '.xls'
+        data.save(excel_file)
+
+        with open(excel_file, 'rb') as f:
+            try:
+                download_name = '实验成绩综合.xls'
                 response = HttpResponse(f)
                 response['content_type'] = "application/octet-stream"
                 response['Content-Disposition'] = "attachment; filename*=utf-8''{}".format(
