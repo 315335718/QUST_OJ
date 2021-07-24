@@ -535,7 +535,7 @@ class OutputStandingsToExcelView(View):
             user = [it.user.username, it.user.name, it.user_id]
             one = [user, total_ac, total_score, problem_score, submit_count, time_penalty, problem_ac, score_code]
             rank_list.append(one)
-        rank_list.sort(key=lambda x: x[0][0], reverse=True)
+        rank_list.sort(key=lambda x: x[0][0])
 
         data = xlwt.Workbook(encoding='utf-8')
         sheet = data.add_sheet('sheet1', cell_overwrite_ok=True)
