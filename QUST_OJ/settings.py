@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '*293)87u=845v-yi$!-!f!igqr&l1ucpz*go1hv!)j%)vre&ws'
+SECRET_KEY = ''
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -111,8 +111,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'QUST_OJ',
-        'USER': 'root',
-        'PASSWORD': 'xxx824650123',
+        'USER': '',
+        'PASSWORD': '',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
@@ -170,7 +170,7 @@ STATICFILES_DIRS = [
     ("css", S_ROOT / "css"),
     ("js", S_ROOT / "js"),
 ]
-STATIC_ROOT = '/var/www/myweb_nginx/static/'
+STATIC_ROOT = ''
 # 当运行 python manage.py collectstatic 的时候
 # STATIC_ROOT 文件夹 是用来将所有STATICFILES_DIRS中所有文件夹中的文件，以及各app中static中的文件都复制过来
 # 把这些文件放到一起是为了部署的时候更方便
@@ -211,5 +211,5 @@ Q_CLUSTER = {
     'label': 'WARNING',  # 用于Django Admin页面的标签。
 }
 
-WX_APP_ID = 'wxfc22aa3c3d842895'
-WX_APP_SECRET = 'cf9649fff7e0ab7c2510125c21d81585'
+WX_APP_ID = ''
+WX_APP_SECRET = ''
