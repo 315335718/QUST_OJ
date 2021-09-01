@@ -26,8 +26,9 @@ class ProblemSerializer(serializers.ModelSerializer):
 class ProblemListView(APIView):
     # permission_classes = (IsAuthenticated,)
     def get(self, request):
-        problem_list = Problem.objects.filter(visible=True).only('id', 'title', 'description', 'problem_type', 'level', 'ac_count', \
+        problem_list = Problem.objects.all().only('id', 'title', 'description', 'problem_type', 'level', 'ac_count', \
                                                                  'total_count').order_by('id')
+        problem_list = problem_list.filter(visible=True)
         serializer = ProblemSerializer(problem_list, many=True)
         return Response({'problem_list': serializer.data})
 
