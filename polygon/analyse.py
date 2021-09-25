@@ -5,6 +5,7 @@ def get_table(type, description, checker):
     table_to_delete = re.findall(r'\s*create\s+table\s+(\S+)\s*\(', description, re.I)
     result['table_to_delete'] = table_to_delete
     if type == '查询类':
+        result['other'] = ''
         view_to_select = []
         # view1 = re.findall(r'\s*create\s+view\s+(\S+)\s*', description, re.I)
         # view2 = re.findall(r'\s*create\s+view\s+(\S+)\(', description, re.I)
