@@ -11,11 +11,11 @@ from django.core.cache import cache
 
 def create_submission(problem, author: User, code, contest=None, status=SubmissionStatus.WAITING, ip='',
                       visible=True):
-    if not 6 <= len(code) <= 65536:
-        raise ValueError("代码不得小于 6 字节，不得超过 65536 字节。")
+    if len(code) > 65536:
+        raise ValueError("代码不得超过 65536 字节。")
     if author.submission_set.exists() and (
-            datetime.now() - author.submission_set.first().create_time).total_seconds() < 5:
-        raise ValueError("5 秒内只能提交一次。")
+            datetime.now() - author.submission_set.first().create_time).total_seconds() < 10:
+        raise ValueError("10 秒内只能提交一次。")
     # if contest:
     #     if contest.submission_set.filter(author_id=author.id, problem_id=problem.id, code__exact=code).exists():
     #         raise ValueError("你之前交过完全一样的代码。")
