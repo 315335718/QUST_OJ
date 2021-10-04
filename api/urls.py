@@ -5,7 +5,7 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView
 )
 
-from api.views import TestView, WxLoginView, SubmissionsView, TestView2, WxBindingView
+from api.views import TestView, WxLoginView, TestView2, WxBindingView
 import api.problem.views as problem
 import api.submission.views as submission
 import api.comment.views as comment
@@ -17,7 +17,6 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('test/', TestView.as_view(), name='test'),
-    path('submissions/', SubmissionsView.as_view(), name='submissions'),
     path('test2/', TestView2.as_view(), name='test2'),
     path('wx_login/', WxLoginView.as_view(), name='wx_login'),
     path('wx_bind/', WxBindingView.as_view(), name='wx_bind'),
@@ -35,6 +34,7 @@ urlpatterns = [
     path('contest_rank/', contest.ContestRankListView.as_view(), name='contest_rank'),
     # 提交信息
     path('my_submissions/', submission.MySubmissionsView.as_view(), name='my_submissions'),
+    path('submissions/', submission.SubmissionsView.as_view(), name='submissions'),
     # 讨论区
     # path('artical_creat/', comment.creat_articalView.as_view(), name='creat_articalView'),
     # path('artical_list/', comment.list_articalView.as_view(), name='list_articalView'),

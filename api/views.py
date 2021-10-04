@@ -63,19 +63,19 @@ class ProblemSerializer(serializers.ModelSerializer):
 #         return Response(serializer.data)
 
 
-class SubmissionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Submission
-        fields = ("code", "problem", "create_time", "code_length", "status", "status_percent", "status_message", "ip")
-
-
-class SubmissionsView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request):
-        submissions = Submission.objects.all()
-        serializer = SubmissionSerializer(submissions, many=True)
-        return Response(serializer.data)
+# class SubmissionSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Submission
+#         fields = ("code", "problem", "create_time", "code_length", "status", "status_percent", "status_message", "ip")
+#
+#
+# class SubmissionsView(APIView):
+#     permission_classes = (IsAuthenticated,)
+#
+#     def post(self, request):
+#         submissions = Submission.objects.all()
+#         serializer = SubmissionSerializer(submissions, many=True)
+#         return Response(serializer.data)
 
 
 class TestView2(APIView):

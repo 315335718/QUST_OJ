@@ -50,3 +50,25 @@ class MySubmissionsView(APIView):
             return Response(contents)
         except Exception as e:
             return Response({'flag': 0, 'message': '系统错误: ' + str(str(e).encode())})
+
+
+class AProblemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Problem
+        fields = ('id')
+
+
+class ASubmissionSerializer(serializers.ModelSerializer):
+    problem = ProblemSerializer()
+    class Meta:
+        model = Submission
+        fields = ('id', 'code', 'create_time', 'status', 'status_percent', 'author', 'problem', 'contest')
+
+
+class SubmissionsView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        submissions = Submission.objects.all()
+        serializer = ASubmissionSerializer(submissions, many=True)
+        return Response(serializer.data)
